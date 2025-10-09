@@ -1,0 +1,220 @@
+// Snapshots - Create
+POST {{baseUrl}}/api/websites/<websiteId>/snapshots
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "content": "<html><body>Hello</body></html>",
+  "title": "Homepage",
+  "url": "https://example.com",
+  "capturedAt": "{{timestamp}}",
+  "metadata": {
+    "performance": { "captureTime": 123, "totalElements": 50, "elementsPerSecond": 0.4 }
+  },
+  "structuredContent": {
+    "headings": ["H1"],
+    "paragraphs": ["P1"],
+    "links": [{"href":"/a","text":"A"}],
+    "inputs": [{"name":"q","type":"text"}],
+    "buttons": [{"text":"Submit","type":"submit"}],
+    "forms": [{"action":"/search","method":"GET"}]
+  }
+}
+
+{
+  "success": true,
+  "data": {
+    "id": "cmfw1dira0008tomssmv8n549",
+    "capturedAt": "2025-09-23T04:07:27.691Z",
+    "contentLength": 31,
+    "structuredElementCount": 5,
+    "debug": {
+      "metadataReceived": true,
+      "performanceReceived": true,
+      "elementCountsCalculated": {
+        "headings": 1,
+        "paragraphs": 1,
+        "links": 1,
+        "inputs": 1,
+        "buttons": 1,
+        "forms": 1
+      }
+    }
+  },
+  "message": "Snapshot created"
+}
+
+// Snapshots - List by Website
+GET {{baseUrl}}/api/websites/<websiteId>/snapshots
+Authorization: Bearer {{token}}
+
+{
+  "success": true,
+  "data": [
+    {
+      "id": "cmfw1dira0008tomssmv8n549",
+      "capturedAt": "2025-09-23T04:07:27.691Z",
+      "content": "<html><body>Hello</body></html>",
+      "contentPreview": "<html><body>Hello</body></html>",
+      "title": "Homepage",
+      "url": "https://example.com",
+      "performance": {
+        "captureTime": 123,
+        "totalElements": 50,
+        "elementsPerSecond": 0.4
+      },
+      "elementCounts": {
+        "forms": 1,
+        "links": 1,
+        "inputs": 1,
+        "buttons": 1,
+        "headings": 1,
+        "paragraphs": 1
+      },
+      "structuredContent": {
+        "forms": [
+          {
+            "action": "/search",
+            "method": "GET"
+          }
+        ],
+        "links": [
+          {
+            "href": "/a",
+            "text": "A"
+          }
+        ],
+        "inputs": [
+          {
+            "name": "q",
+            "type": "text"
+          }
+        ],
+        "buttons": [
+          {
+            "text": "Submit",
+            "type": "submit"
+          }
+        ],
+        "headings": [
+          "H1"
+        ],
+        "paragraphs": [
+          "P1"
+        ]
+      },
+      "metadata": {
+        "performance": {
+          "captureTime": 123,
+          "totalElements": 50,
+          "elementsPerSecond": 0.4
+        },
+        "elementCounts": {
+          "forms": 1,
+          "links": 1,
+          "inputs": 1,
+          "buttons": 1,
+          "headings": 1,
+          "paragraphs": 1
+        },
+        "structuredContent": {
+          "forms": [
+            {
+              "action": "/search",
+              "method": "GET"
+            }
+          ],
+          "links": [
+            {
+              "href": "/a",
+              "text": "A"
+            }
+          ],
+          "inputs": [
+            {
+              "name": "q",
+              "type": "text"
+            }
+          ],
+          "buttons": [
+            {
+              "text": "Submit",
+              "type": "submit"
+            }
+          ],
+          "headings": [
+            "H1"
+          ],
+          "paragraphs": [
+            "P1"
+          ]
+        }
+      }
+    }
+  ]
+}
+
+// Snapshots - Diff (needs at least 2 snapshots)
+GET {{baseUrl}}/api/websites/<websiteId>/diff
+Authorization: Bearer {{token}}
+
+// Accessibility - Analyze raw HTML (local analysis)
+POST {{baseUrl}}/api/analyze-accessibility
+Content-Type: application/json
+
+{
+  "html": "<html lang=\"en\"><img src=\"x\"></html>"
+}
+
+// Accessibility - Save results to latest snapshot for website
+POST {{baseUrl}}/api/websites/<websiteId>/accessibility
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "analyzedAt": "{{timestamp}}",
+  "issues": [
+    { "type": "img-alt-missing", "message": "Image missing alt", "selector": "img[src='x']" }
+  ]
+}
+
+// Accessibility - Get results
+GET {{baseUrl}}/api/websites/<websiteId>/accessibility
+Authorization: Bearer {{token}}
+
+// Accessibility - AI Recommendations
+POST {{baseUrl}}/api/websites/<websiteId>/recommendations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "issues": [
+    { "type": "color-contrast", "message": "Low contrast on button", "selector": "button.primary" }
+  ]
+}
+
+// Chat - Process
+POST {{baseUrl}}/api/chat
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "textContent": "Page includes Submit button and a form.",
+  "question": "How many interactive elements are present?",
+  "url": "https://example.com"
+}
+
+// Reports - Download PDF (GET)
+GET {{baseUrl}}/api/reports/accessibility-pdf
+Authorization: Bearer {{token}}
+
+// Reports - Generate PDF (POST with manual issues)
+POST {{baseUrl}}/api/reports/accessibility-pdf
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "manualIssues": [
+    { "type": "keyboard-navigation", "message": "Skip link missing on home page" }
+  ]
+}

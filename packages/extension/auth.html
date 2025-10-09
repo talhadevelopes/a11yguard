@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Authentication</title>
+  <link rel="stylesheet" href="popup.css">
+  <style>
+    .auth-container {
+      padding: 20px;
+      max-width: 350px;
+    }
+    
+    .auth-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    
+    .auth-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .auth-header p {
+      color: var(--color-secondary);
+      font-size: 14px;
+    }
+    
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .form-group label {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .form-group input {
+      padding: 10px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      background-color: var(--color-background);
+      color: var(--color-foreground);
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+    
+    .auth-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    
+    .auth-toggle {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+    
+    .auth-toggle button {
+      background: none;
+      border: none;
+      color: var(--color-primary);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    
+    .error-message {
+      color: var(--color-error);
+      font-size: 14px;
+      text-align: center;
+      margin-top: 8px;
+    }
+    
+    .success-message {
+      color: var(--color-success);
+      font-size: 14px;
+      text-align: center;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-header">
+      <h2 id="auth-title">Join Team</h2>
+      <p id="auth-subtitle">Enter team credentials to access snapshots</p>
+    </div>
+    
+    <form class="auth-form" id="auth-form">
+      <div class="form-group">
+        <label for="team-email">Team Email</label>
+        <input type="email" id="team-email" required placeholder="team@example.com">
+      </div>
+      
+      <div class="form-group">
+        <label for="team-password">Team Passcode</label>
+        <input type="password" id="team-password" required placeholder="Enter team passcode">
+      </div>
+      
+      <div class="auth-buttons">
+        <button type="submit" class="primary-button" id="auth-submit">
+          <span id="auth-submit-text">Join Team</span>
+        </button>
+      </div>
+      
+      <div id="auth-message"></div>
+    </form>
+    
+    <div class="auth-toggle">
+      <span id="auth-toggle-text">Don't have a team?</span>
+      <button type="button" id="auth-toggle-btn">Create New Team</button>
+    </div>
+  </div>
+  
+  <script src="src/core/auth.js"></script>
+  <script src="src/ui/auth-ui.js"></script>
+</body>
+</html>

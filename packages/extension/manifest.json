@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "a11yguard",
+  "version": "1.0",
+  "description": "Monitor website changes and analyze accessibility with AI.",
+  "permissions": ["activeTab", "scripting", "tabs", "storage"],
+  "host_permissions": [
+    "http://localhost:4000/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:5173/*"], 
+      "js": ["src/background/content-script-dashboard.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["auth.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

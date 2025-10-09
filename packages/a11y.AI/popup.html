@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>a11yguard.AI</title>
+    <link rel="stylesheet" href="popup.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    />
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="app-header">
+        <div class="logo">
+          <svg
+            class="logo-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M21 11.5C21.0034 12.8199 20.6951 14.1219 20.1 15.3C19.3944 16.7118 18.3098 17.8992 16.9674 18.7293C15.6251 19.5594 14.0782 19.9994 12.5 20C11.1801 20.0035 9.87812 19.6951 8.7 19.1L3 21L4.9 15.3C4.30493 14.1219 3.99656 12.8199 4 11.5C4.00061 9.92179 4.44061 8.37488 5.27072 7.03258C6.10083 5.69028 7.28825 4.6056 8.7 3.90003C9.87812 3.30496 11.1801 2.99659 12.5 3.00003H13C15.0843 3.11502 17.053 3.99479 18.5291 5.47089C20.0052 6.94699 20.885 8.91568 21 11V11.5Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </svg>
+          <h1>a11yguard.AI</h1>
+        </div>
+      </header>
+
+      <div class="current-page-info">
+        <div class="url-container">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+            <path
+              d="M8 12H16M12 8V16"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            ></path>
+          </svg>
+          <span id="page-url">Loading...</span>
+        </div>
+      </div>
+
+      <main class="chatbot-main">
+        <div class="chat-container">
+          <div id="chat-area" class="chat-area">
+            <div class="welcome-message">
+              <div class="ai-avatar">
+                <div class="ai-icon">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z" fill="currentColor"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="welcome-content">
+                <h3>Hello! I'm your AI Assistant 🤖</h3>
+                <p>I can analyze this webpage and provide expert insights. Choose an expert type below and ask me anything!</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="chat-controls">
+            <div class="expert-selector">
+              <label for="expert-type" class="expert-label">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L15.09 8.26L22 9L15.09 9.74L12 16L8.91 9.74L2 9L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                Expert Mode
+              </label>
+              <select id="expert-type" class="expert-dropdown">
+                <option value="tech">🔧 Tech Expert</option>
+                <option value="health">🏥 Health Expert</option>
+                <option value="fact-checker">🔍 Fact Checker</option>
+              </select>
+            </div>
+            
+            <div class="chat-input-container">
+              <div class="input-wrapper">
+                <input
+                  type="text"
+                  id="chat-input"
+                  placeholder="Ask me anything about this page..."
+                  maxlength="500"
+                />
+                <div class="input-actions">
+                  <span id="char-count" class="char-count">0/500</span>
+                  <button id="send-message" class="send-button" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M22 2L15 22L11 13L2 9L22 2Z" fill="currentColor"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="app-footer">
+        <div class="version">v1.0.0</div>
+      </footer>
+    </div>
+
+    <!-- Core API -->
+    <script src="src/core/api.js"></script>
+
+    <!-- Chatbot Feature -->
+    <script src="src/features/chatbot.js"></script>
+
+    <!-- UI -->
+    <script src="src/ui/popup-ui.js"></script>
+  </body>
+</html>

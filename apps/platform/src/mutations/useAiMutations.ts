@@ -1,0 +1,15 @@
+import { useMutation } from "@tanstack/react-query";
+import { accessibilityService } from "../services/api";
+import type { AccessibilityIssue } from "../types/websiteTypes";
+
+export const useGenerateAIRecommendationsMutation = (websiteId: string) => {
+  return useMutation<string, Error, AccessibilityIssue[]>({
+    mutationFn: async (issues: AccessibilityIssue[]) => {
+      if (!websiteId) throw new Error("Invalid website ID for AI recommendations.");
+      const data = await accessibilityService.generateAccessibilityRecommendations(websiteId, { issues });
+      // backend returns { recommendations: string }
+      if (typeof data === "string") return data as string;
+      return (data?.recommendations as string) ?? "";
+    },
+  });
+};
