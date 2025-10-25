@@ -3,8 +3,8 @@ import type { AuthRequest } from "../middleware/auth";
 import { v4 as uuidv4 } from "uuid";
 import { generateToken } from "../utils/jwt";
 import { User, Member, MemberType } from "../models";
-import { sendError, sendSuccess } from "../types/response";
-import type { MemberDTO } from "../types";
+import { sendError, sendSuccess } from "../types/response.types";
+import type { MemberDTO } from "../types/index.types";
 import {
   createMemberValidation,
   updateMemberValidation,

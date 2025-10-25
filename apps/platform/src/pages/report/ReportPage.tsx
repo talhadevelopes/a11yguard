@@ -11,7 +11,6 @@ import {
   Eye,
 } from "lucide-react";
 import { useReportPage } from "../../features/report/useReportPage";
-import { useState } from "react";
 import IssueForm from "./_components/IssueForm";
 import IssueList from "./_components/IssueList";
 import ReportGenerator from "./_components/ReportGenerator";
@@ -37,7 +36,6 @@ const ReportsPage = () => {
     getPriorityTextColor,
     addSampleData,
   } = useReportPage();
-  const [accessibilityIssues, setAccessibilityIssues] = useState([]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50/30 to-emerald-50/50 relative overflow-hidden">

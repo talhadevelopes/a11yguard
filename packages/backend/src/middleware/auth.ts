@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { MemberType } from "../models";
 import { verifyToken } from "../utils/jwt";
-import { sendError } from "../types/response";
+import { sendError } from "../types/response.types";
 
 const JWT_SECRET = process.env.JWT_SECRET || "changeme";
 

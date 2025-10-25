@@ -4,7 +4,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import routes from "./routes/index.routes";
 import { connectDatabase } from "./utils/database";
-import { sendError, sendSuccess } from "./types/response";
+import { sendError, sendSuccess } from "./types/response.types";
 import { createClient, RedisClientType } from "redis";
 import hpp from "hpp";
 import helmet from 'helmet';
@@ -51,7 +51,7 @@ export const startServer = async () => {
     console.log("✅ Connected to Redis");
 
     const app = express();
-    const PORT = process.env.PORT || 3000;
+    const PORT = 4000;
 
     // Middleware
     app.use(express.json({ limit: "50mb" }));
@@ -104,9 +104,10 @@ export const startServer = async () => {
     app.use("/api/websites", routes.snapshots);
     app.use("/api/websites", routes.accessibility);
     app.use("/api/accessibility", routes.accessibility); // Add standalone accessibility routes
-    app.use("/api/chat", routes.chat);
+    // app.use("/api/chat", routes.chat);
     app.use("/api/members", routes.members);
     app.use("/api/reports", routes.reports);
+    app.use("/api/chat", routes.chatbot); // ADD THIS LINE
     app.use("/api", routes.utility);
 
     // 404 handler

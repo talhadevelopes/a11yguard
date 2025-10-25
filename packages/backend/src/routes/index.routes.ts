@@ -1,18 +1,20 @@
-import authRoutes from "./authRoutes";
+import authRoutes from "./auth.routes";
 import websiteRoutes from "./websiteRoutes";
-import snapshotRoutes from "./snapshotRoutes";
-import accessibilityRoutes from "./accessibilityRoutes";
-import chatRoutes from "./chatRoutes";
-import memberRoutes from "./memberRoutes";
-import reportRoutes from "./reportRoutes";
-import utilityRoutes from "./utilityRoute";
+import snapshotRoutes from "./snapshot.routes";
+import accessibilityRoutes from "./accessibility.routes";
+import memberRoutes from "./member.routes";
+import reportRoutes from "./report.routes";
+import utilityRoutes from "./utility.routes";
+import chatbot from "./chatbot.routes"; // ✅ This should work now
+
+
 
 export const routes = {
   auth: authRoutes,
   websites: websiteRoutes,
   snapshots: snapshotRoutes,
   accessibility: accessibilityRoutes,
-  chat: chatRoutes,
+  chatbot: chatbot, 
   members: memberRoutes,
   reports: reportRoutes,
   utility: utilityRoutes,

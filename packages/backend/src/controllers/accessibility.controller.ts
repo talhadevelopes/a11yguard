@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
 import { AuthRequest } from "../middleware/auth";
 import { Snapshot, AccessibilityIssue } from "../models";
-import { AccessibilityService } from "../services/accessibilityService";
+import {
+  AccessibilityAIRecommendationService,
+  AccessibilityService,
+} from "../services/accessibility.service";
 import dotenv from "dotenv";
-import { sendError, sendSuccess } from "../types/response";
+import { sendError, sendSuccess } from "../types/response.types";
 import { redisClient } from "../index";
 dotenv.config();
 
@@ -271,7 +274,8 @@ export class AccessibilityController {
       return sendError(res, 500, "Server error", "SERVER_ERROR", error.message);
     }
   }
-
+}
+export class AccessibilityAIServiceController {
   static async generateAccessibilityRecommendations(
     req: AuthRequest,
     res: Response
@@ -279,7 +283,9 @@ export class AccessibilityController {
     try {
       const { issues } = req.body;
       const recommendations =
-        await AccessibilityService.generateRecommendations(issues);
+        await AccessibilityAIRecommendationService.generateRecommendations(
+          issues
+        );
 
       if (
         !recommendations ||
@@ -328,15 +334,16 @@ export class AccessibilityController {
   static async generateCodeFixes(req: AuthRequest, res: Response) {
     try {
       const { issues } = req.body;
-      
+
       if (!issues || !Array.isArray(issues) || issues.length === 0) {
         return sendError(res, 400, "Issues array required", "VALIDATION_ERROR");
       }
 
       console.log(`🔧 Generating code fixes for ${issues.length} issues...`);
-      
-      const codeFixes = await AccessibilityService.generateCodeFixes(issues);
-      
+
+      const codeFixes =
+        await AccessibilityAIRecommendationService.generateCodeFixes(issues);
+
       if (!codeFixes || codeFixes.length === 0) {
         return sendError(
           res,
@@ -347,15 +354,20 @@ export class AccessibilityController {
       }
 
       console.log(`✅ Generated ${codeFixes.length} code fixes`);
-      
+
       return sendSuccess(res, { codeFixes });
     } catch (error: any) {
       console.error("Error generating code fixes:", error?.message || error);
-      
+
       if (error.message.includes("Missing") && error.message.includes("API")) {
-        return sendError(res, 500, "AI service configuration error", "CONFIG_ERROR");
+        return sendError(
+          res,
+          500,
+          "AI service configuration error",
+          "CONFIG_ERROR"
+        );
       }
-      
+
       return sendError(
         res,
         500,

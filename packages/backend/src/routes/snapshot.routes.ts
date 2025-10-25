@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authenticate } from "../middleware/auth";
 import { validateWebsiteExists } from "../validations/websiteValidation";
-import { SnapshotController } from "../controllers/snapshotController";
+import { SnapshotController } from "../controllers/snapshot.controller";
 
 const router : Router = Router();
 

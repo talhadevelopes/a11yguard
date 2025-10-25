@@ -1,7 +1,6 @@
 import { Button } from "@a11yguard/shared/components/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@a11yguard/shared/components/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@a11yguard/shared/components/card"
 import { Badge } from "@a11yguard/shared/components/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@a11yguard/shared/components/tabs"
 import Footer from "../components/Footer"
 import {
   Shield,
@@ -9,19 +8,15 @@ import {
   Users,
   FileText,
   Chrome,
-  GitBranch,
   CheckCircle,
-  ArrowRight,
   Layers,
   TrendingUp,
   Terminal,
-  Code2,
   Cpu,
   Braces,
   Scan,
   BrainCircuit,
   Sparkles,
-  Rocket,
   Target,
   Workflow,
   Star,
@@ -29,11 +24,7 @@ import {
   BarChart3,
   Microscope,
   Camera,
-  RefreshCw,
-  Send,
-  Filter,
   Bot,
-  CheckCircle2,
   Key,
   UserCheck,
   TreePine,
@@ -54,12 +45,9 @@ import {
   Briefcase,
 } from "lucide-react"
 import Header from "../components/Header"
-import { useState } from "react"
 import ExtensionCarousel from "../components/ExtensionCarousel"
 
 export default function LandingPage() {
-  const [inputValue, setInputValue] = useState('');
-  const charCount = inputValue.length;
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
       <div className="fixed inset-0 pointer-events-none">

@@ -1,7 +1,7 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useAuthStore } from "./stores/authStore";
-import { ThemeProvider } from "./context/ThemeProvider";
+import { ThemeProvider } from "./components/ThemeProvider";
 import './App.css'
 import Header from "./components/Header";
 

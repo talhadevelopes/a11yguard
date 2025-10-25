@@ -1,5 +1,5 @@
 import express from "express"
-import { MembersController } from "../controllers/memberController"
+import { MembersController } from "../controllers/member.controller"
 import { authenticate, authorizeRoles } from "../middleware/auth"
 import { MemberType } from "../models" 
 

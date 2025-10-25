@@ -1,6 +1,6 @@
 import type { Response } from "express";
 import type { AuthRequest } from "../middleware/auth";
-import { prepareReportData } from "../services/reportService";
+import { prepareReportData } from "../services/report.service";
 import { generateReportHTML } from "../utils/reportHTMLTemplates";
 import { generateReportPDF } from "../utils/reportPDF";
 

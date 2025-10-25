@@ -2,30 +2,51 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuthStore } from "../../stores/authStore";
 import { Skeleton } from "@a11yguard/shared/components/skeleton";
-import { AlertCircle, User, Shield, Globe, Calendar, Camera, Brain, Sparkles, Zap, TrendingUp, BarChart3, TreePine, Layers, Lightbulb, ArrowLeft, ExternalLink, Activity, Clock } from "lucide-react";
-import { CustomTabs, CustomTabsList, CustomTabsTrigger, CustomTabsContent } from "@a11yguard/shared/components/CustomTabs";
-import AiResponseRenderer from "../../components/AiResponseRenderer";
+import {
+  AlertCircle,
+  User,
+  Shield,
+  Globe,
+  Calendar,
+  Camera,
+  Zap,
+  TrendingUp,
+  BarChart3,
+  TreePine,
+  Layers,
+  Lightbulb,
+  ArrowLeft,
+  ExternalLink,
+  Activity,
+  Clock,
+} from "lucide-react";
+import {
+  CustomTabs,
+  CustomTabsList,
+  CustomTabsTrigger,
+  CustomTabsContent,
+} from "@a11yguard/shared/components/CustomTabs";
 import type { Snapshot } from "../../types/websiteTypes";
 import { useWebsiteSnapshots } from "../../queries/useSnapshotQueries";
 import ElementStatistics from "./_components/ElementStatistics";
 import CustomContentTreemap from "./_components/CustomContentTreemap";
 import TreeVisualization from "./_components/TreeVisualization";
+import type { RawNodeDatum } from "react-d3-tree";
 
 export default function WebsiteMindPage() {
   const { websiteId } = useParams<{ websiteId: string }>();
-  const { token, user, logout } = useAuthStore();
+  const { user, logout } = useAuthStore();
 
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [parsedDOM, setParsedDOM] = useState<any>(null);
-  const [elementCounts, setElementCounts] = useState<Record<string, number>>({});
+  const [elementCounts, setElementCounts] = useState<Record<string, number>>(
+    {}
+  );
 
   // AI-related state
-  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
-  const [aiError, setAiError] = useState<string | null>(null);
-  const [aiStatus, setAiStatus] = useState<'idle' | 'loading' | 'error' | 'done'>('idle');
-  const [lastRun, setLastRun] = useState<string | null>(null);
+  const [_aiAnalysis, setAiAnalysis] = useState<string | null>(null);
 
   // Tree Visualization modal state
   const [showTree, setShowTree] = useState(false);
@@ -112,8 +133,10 @@ export default function WebsiteMindPage() {
         }
       }
     }
-    if ((node as HTMLElement).id) (nodeData as any).id = (node as HTMLElement).id;
-    if ((node as HTMLElement).className) (nodeData as any).className = (node as HTMLElement).className;
+    if ((node as HTMLElement).id)
+      (nodeData as any).id = (node as HTMLElement).id;
+    if ((node as HTMLElement).className)
+      (nodeData as any).className = (node as HTMLElement).className;
     if (node.childNodes) {
       for (let i = 0; i < node.childNodes.length; i++) {
         const childNode = node.childNodes[i];
@@ -135,18 +158,16 @@ export default function WebsiteMindPage() {
     return nodeData;
   };
 
-  // Convert our parsedDOM to react-d3-tree RawNodeDatum
-  type RawNodeDatum = {
-    name: string;
-    attributes?: Record<string, string | number | boolean>;
-    children?: RawNodeDatum[];
-  };
-
   const toD3Node = (node: any): RawNodeDatum => {
     // Compose a readable node name
     const idPart = node.id ? `#${node.id}` : "";
-    const classPart = node.className ? `.${String(node.className).split(" ").join(".")}` : "";
-    const name = node.type === "#text" ? `#text: ${String(node.content).slice(0, 40)}` : `${node.type}${idPart}${classPart}`;
+    const classPart = node.className
+      ? `.${String(node.className).split(" ").join(".")}`
+      : "";
+    const name =
+      node.type === "#text"
+        ? `#text: ${String(node.content).slice(0, 40)}`
+        : `${node.type}${idPart}${classPart}`;
 
     const attributes: Record<string, string | number | boolean> = {};
     if (node.attributes) {
@@ -156,35 +177,20 @@ export default function WebsiteMindPage() {
       }
     }
     if (node.type !== "#text") {
-      attributes.childrenCount = Array.isArray(node.children) ? node.children.length : 0;
+      attributes.childrenCount = Array.isArray(node.children)
+        ? node.children.length
+        : 0;
     }
 
     const children: RawNodeDatum[] = Array.isArray(node.children)
       ? node.children.map((c: any) => toD3Node(c))
       : [];
 
-    return { name, attributes: Object.keys(attributes).length ? attributes : undefined, children: children.length ? children : undefined };
-  };
-
-  // AI: Uses recommendations mutation with synthetic issues
-  const generateDOMAnalysis = async () => {
-    if (!snapshot || !elementCounts || !websiteId) return;
-    setAiError(null);
-    setAiAnalysis(null);
-
-    const totalElements = Object.values(elementCounts).reduce((sum, count) => sum + count, 0);
-    const topElements = Object.entries(elementCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([el, count]) => `${el}(${count})`)
-      .join(", ");
-    const stats = {
-      totalElements,
-      uniqueElements: Object.keys(elementCounts).length,
-      topElements,
-      contentSize: snapshot.content.length,
+    return {
+      name,
+      attributes: Object.keys(attributes).length ? attributes : undefined,
+      children: children.length ? children : undefined,
     };
-
   };
 
   if (loading) {
@@ -218,10 +224,11 @@ export default function WebsiteMindPage() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg">
                 <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
               </div>
-
             </div>
             <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-green-100/50 px-4 py-3 flex items-center gap-4">
-              <span className="text-sm text-slate-600">Logged in as: {user?.email || user?.userId}</span>
+              <span className="text-sm text-slate-600">
+                Logged in as: {user?.email || user?.userId}
+              </span>
               <button
                 onClick={logout}
                 className="px-4 py-2 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 transition-colors"
@@ -273,12 +280,18 @@ export default function WebsiteMindPage() {
                 </Link>
               )}
               <div className="flex gap-4 justify-center">
-                <Link to="/websites" className="text-green-600 hover:text-green-700 font-medium flex items-center gap-2">
+                <Link
+                  to="/websites"
+                  className="text-green-600 hover:text-green-700 font-medium flex items-center gap-2"
+                >
                   <ArrowLeft className="w-4 h-4" />
                   Back to Websites
                 </Link>
                 {websiteId && (
-                  <Link to={`/websites/${websiteId}`} className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-2">
+                  <Link
+                    to={`/websites/${websiteId}`}
+                    className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-2"
+                  >
                     <ExternalLink className="w-4 h-4" />
                     Website Details
                   </Link>
@@ -309,15 +322,22 @@ export default function WebsiteMindPage() {
                 No Snapshot Available
               </h1>
               <p className="text-slate-600 mb-8 leading-relaxed">
-                No valid DOM structure available for this website. Please capture a snapshot first using the browser extension.
+                No valid DOM structure available for this website. Please
+                capture a snapshot first using the browser extension.
               </p>
               <div className="flex gap-4 justify-center">
-                <Link to="/websites" className="text-green-600 hover:text-green-700 font-medium flex items-center gap-2">
+                <Link
+                  to="/websites"
+                  className="text-green-600 hover:text-green-700 font-medium flex items-center gap-2"
+                >
                   <ArrowLeft className="w-4 h-4" />
                   Back to Websites
                 </Link>
                 {websiteId && (
-                  <Link to={`/websites/${websiteId}`} className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-2">
+                  <Link
+                    to={`/websites/${websiteId}`}
+                    className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-2"
+                  >
                     <ExternalLink className="w-4 h-4" />
                     Website Details
                   </Link>
@@ -359,9 +379,7 @@ export default function WebsiteMindPage() {
 
       <div className="relative z-10 p-4 py-12 max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-8 gap-6">
-
-        </div>
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-8 gap-6"></div>
 
         {/* Snapshot Info Card */}
         {snapshot && (
@@ -372,8 +390,12 @@ export default function WebsiteMindPage() {
                   <Globe className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Website ID</p>
-                  <p className="font-mono text-sm text-slate-800">{websiteId}</p>
+                  <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">
+                    Website ID
+                  </p>
+                  <p className="font-mono text-sm text-slate-800">
+                    {websiteId}
+                  </p>
                 </div>
               </div>
 
@@ -382,8 +404,12 @@ export default function WebsiteMindPage() {
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Captured</p>
-                  <p className="text-sm text-slate-800">{new Date(snapshot.capturedAt).toLocaleString()}</p>
+                  <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">
+                    Captured
+                  </p>
+                  <p className="text-sm text-slate-800">
+                    {new Date(snapshot.capturedAt).toLocaleString()}
+                  </p>
                 </div>
               </div>
 
@@ -392,8 +418,12 @@ export default function WebsiteMindPage() {
                   <Activity className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">Content Size</p>
-                  <p className="text-sm text-slate-800">{snapshot.content.length.toLocaleString()} chars</p>
+                  <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">
+                    Content Size
+                  </p>
+                  <p className="text-sm text-slate-800">
+                    {snapshot.content.length.toLocaleString()} chars
+                  </p>
                 </div>
               </div>
             </div>
@@ -429,8 +459,12 @@ export default function WebsiteMindPage() {
                     <Layers className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold font-heading text-slate-800">Content Distribution</h2>
-                    <p className="text-slate-600">Interactive treemap visualization of HTML elements</p>
+                    <h2 className="text-xl font-bold font-heading text-slate-800">
+                      Content Distribution
+                    </h2>
+                    <p className="text-slate-600">
+                      Interactive treemap visualization of HTML elements
+                    </p>
                   </div>
                 </div>
                 <div className="bg-slate-50/50 rounded-xl p-4">
@@ -456,8 +490,12 @@ export default function WebsiteMindPage() {
                     <BarChart3 className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold font-heading text-slate-800">Element Statistics</h2>
-                    <p className="text-slate-600">Detailed breakdown of DOM structure</p>
+                    <h2 className="text-xl font-bold font-heading text-slate-800">
+                      Element Statistics
+                    </h2>
+                    <p className="text-slate-600">
+                      Detailed breakdown of DOM structure
+                    </p>
                   </div>
                 </div>
                 <div className="bg-slate-50/50 rounded-xl p-4">
@@ -470,92 +508,11 @@ export default function WebsiteMindPage() {
 
         {/* Tree Visualization Modal */}
         {showTree && (
-          <TreeVisualization data={toD3Node(parsedDOM)} onClose={() => setShowTree(false)} />
+          <TreeVisualization
+            data={toD3Node(parsedDOM)}
+            onClose={() => setShowTree(false)}
+          />
         )}
-
-        {/* AI Analysis Section */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-green-100/50 overflow-hidden mb-8">
-          <div className="bg-gradient-to-r from-purple-500/10 to-violet-500/10 px-6 py-4 border-b border-green-100/50">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg">
-                <Brain className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold font-heading text-slate-800">AI DOM Analysis</h2>
-                <p className="text-slate-600">Get intelligent insights and optimization recommendations</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6">
-            <div className="flex flex-col sm:flex-row gap-3">
-
-
-              <button
-                onClick={() => {
-                  setAiAnalysis(null);
-                  setAiError(null);
-                  setAiStatus('idle');
-                }}
-                className="flex-none px-4 py-3 bg-white border border-slate-200 rounded-md text-sm text-slate-700 hover:bg-slate-50"
-              >
-                Clear
-              </button>
-            </div>
-
-            <div className="mt-6">
-              {aiStatus === 'loading' && (
-                <div className="p-6 bg-white rounded-md shadow-inner border border-slate-100">
-                  <div className="animate-pulse">
-                    <div className="h-4 bg-slate-200 rounded w-1/3 mb-3" />
-                    <div className="h-3 bg-slate-200 rounded w-full mb-2" />
-                    <div className="h-3 bg-slate-200 rounded w-full mb-2" />
-                    <div className="h-3 bg-slate-200 rounded w-5/6" />
-                  </div>
-                </div>
-              )}
-
-              {aiStatus === 'idle' && (
-                <div className="p-6 bg-slate-50 rounded-md border border-slate-100 text-sm text-slate-600">
-                  Click "Generate AI Analysis & Recommendations" to get targeted DOM optimization guidance.
-                </div>
-              )}
-
-              {aiStatus === 'error' && aiError && (
-                <div className="mt-4 bg-red-50/50 backdrop-blur-sm rounded-xl border border-red-200/50 p-6">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center shadow-lg flex-shrink-0 mt-1">
-                      <AlertCircle className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-red-800 mb-2">Analysis Error</h3>
-                      <p className="text-red-700 text-sm">{aiError}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {aiStatus === 'done' && aiAnalysis && (
-                <div className="mt-4 bg-purple-50/50 backdrop-blur-sm rounded-xl border border-purple-200/50 p-6">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg flex-shrink-0 mt-1">
-                      <Lightbulb className="w-4 h-4 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-bold text-purple-800 mb-2 text-lg">AI Analysis Results</h3>
-                        {lastRun && <span className="text-xs text-slate-500">Last: {new Date(lastRun).toLocaleString()}</span>}
-                      </div>
-                      <div className="max-w-none">
-                        <AiResponseRenderer text={aiAnalysis} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
 
         {/* Info Panel */}
         <div className="bg-gradient-to-r from-blue-50/80 via-cyan-50/80 to-teal-50/80 backdrop-blur-xl rounded-2xl shadow-xl border border-blue-100/50 p-8 mb-8">
@@ -565,11 +522,15 @@ export default function WebsiteMindPage() {
                 <Lightbulb className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold font-heading text-slate-800 mb-2">About DOM Mind</h3>
+                <h3 className="text-xl font-bold font-heading text-slate-800 mb-2">
+                  About DOM Mind
+                </h3>
                 <p className="text-slate-700 leading-relaxed mb-4">
-                  DOM Mind provides comprehensive analysis of your website's structure and performance.
-                  Explore the interactive treemap to understand element distribution, view detailed statistics
-                  for optimization opportunities, and leverage AI-powered recommendations for improved performance.
+                  DOM Mind provides comprehensive analysis of your website's
+                  structure and performance. Explore the interactive treemap to
+                  understand element distribution, view detailed statistics for
+                  optimization opportunities, and leverage AI-powered
+                  recommendations for improved performance.
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">

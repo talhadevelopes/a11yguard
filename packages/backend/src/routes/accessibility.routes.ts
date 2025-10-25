@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { authenticate } from "../middleware/auth";
 import { validateWebsiteExists } from "../validations/websiteValidation";
-import { AccessibilityController } from "../controllers/accessibilityController";
+import { AccessibilityAIServiceController, AccessibilityController } from "../controllers/accessibility.controller";
 
 const router : Router = Router();
 
@@ -24,14 +24,14 @@ router.get(
 router.post(
   "/:websiteId/recommendations",
   authenticate, 
-  AccessibilityController.generateAccessibilityRecommendations,
+  AccessibilityAIServiceController.generateAccessibilityRecommendations,
 )
 
 // POST /api/accessibility/generate-fixes - Generate code fixes for accessibility issues
 router.post(
   "/generate-fixes",
   authenticate,
-  AccessibilityController.generateCodeFixes
+  AccessibilityAIServiceController.generateCodeFixes
 );
 
 export default router;

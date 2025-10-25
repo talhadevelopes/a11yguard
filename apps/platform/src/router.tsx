@@ -10,11 +10,13 @@ import WebsitesPage from "./pages/websites/WebsitesPage";
 import TeamManagementPage from "./pages/team_management/TeamManagementPage";
 import ReportsPage from "./pages/report/ReportPage";
 import OnboardingPage from "./pages/auth/OnboardingPage";
+import NotFound from "./pages/not-found"; 
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    errorElement: <NotFound />, 
     children: [
       {
         index: true,
@@ -32,7 +34,6 @@ export const router = createBrowserRouter([
         path: "login",
         element: <Login />,
       },
-     
       {
         path: "manage",
         element: <TeamManagementPage />,
@@ -62,6 +63,14 @@ export const router = createBrowserRouter([
         path: "/mind/:websiteId",
         element: <WebsiteMindPage />, 
       },
+      {
+        path: "*",
+        element: <NotFound />,
+      },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);

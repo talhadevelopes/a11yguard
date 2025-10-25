@@ -1,8 +1,8 @@
 import { Response } from "express";
 import { AuthRequest } from "../middleware/auth";
 import { Website, Snapshot } from "../models";
-import { sendError, sendSuccess } from "../types/response";
-import type { WebsiteDTO } from "../types";
+import { sendError, sendSuccess } from "../types/response.types";
+import type { WebsiteDTO } from "../types/index.types";
 import { redisClient } from "../index";
 
 export class WebsiteController {

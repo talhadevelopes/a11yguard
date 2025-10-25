@@ -92,11 +92,25 @@ export const snapshotService = {
 
 // Chat Service
 export const chatService = {
-  processChat: async (chatData: any) => {
+  processChat: async (chatData: {
+    query: string;
+    snapshotId: string;
+    websiteId: string;
+    conversationHistory: Array<{ role: string; content: string }>;
+  }) => {
     setupInterceptors();
     const response = await axios.post(`${API_BASE_URL}/api/chat`, chatData);
     return response.data.data;
-  }
+  },
+
+  // Optional: Get suggested questions
+  getSuggestedQuestions: async (snapshotId: string) => {
+    setupInterceptors();
+    const response = await axios.get(
+      `${API_BASE_URL}/api/chat/suggestions/${snapshotId}`
+    );
+    return response.data.data;
+  },
 };
 
 // Member Service
@@ -154,25 +168,16 @@ export const reportService = {
 
 // Utility Service
 export const utilityService = {
-  analyzeAccessibility: async (analysisData: any) => {
-    setupInterceptors();
-    const response = await axios.post(`${API_BASE_URL}/api/analyze-accessibility`, analysisData);
-    return response.data.data;
-  },
+  // analyzeAccessibility: async (analysisData: any) => {
+  //   setupInterceptors();
+  //   const response = await axios.post(`${API_BASE_URL}/api/analyze-accessibility`, analysisData);
+  //   return response.data.data;
+  // },
 
-  // NEW: Generate code fixes for accessibility issues
+  // Generate code fixes for accessibility issues
   generateCodeFixes: async (issues: any[]) => {
     setupInterceptors();
     const response = await axios.post(`${API_BASE_URL}/api/accessibility/generate-fixes`, { issues });
-    return response.data.data;
-  }
-};
-
-// Health Check
-export const healthService = {
-  checkHealth: async () => {
-    setupInterceptors();
-    const response = await axios.get(`${API_BASE_URL}/api/health`);
     return response.data.data;
   }
 };

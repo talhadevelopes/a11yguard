@@ -2,14 +2,14 @@ import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/jwt";
 import { User, Member, MemberType } from "../models";
-import { sendError, sendSuccess } from "../types/response";
+import { sendError, sendSuccess } from "../types/response.types";
 import type {
   LoginMultipleMembersDTO,
   LoginSingleMemberDTO,
   RegisterDTO,
   SelectMemberDTO,
   MemberDTO,
-} from "../types";
+} from "../types/index.types";
 import {
   loginValidation,
   registerValidation,

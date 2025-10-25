@@ -9,7 +9,6 @@ import { FileIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useMemo } from "react";
 import githubLight from "shiki/themes/github-light.mjs";
-import githubDark from "shiki/themes/github-dark.mjs";
 
 interface CodeComparisonProps {
   beforeCode: string;

@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { AuthRequest } from "../middleware/auth";
 import { Snapshot } from "../models";
-import { sendError, sendSuccess } from "../types/response";
+import { sendError, sendSuccess } from "../types/response.types";
 import { gzip, gunzip } from "node:zlib";
 import { promisify } from "node:util";
 import { redisClient } from "../index";

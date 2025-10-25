@@ -65,7 +65,7 @@ export default function Header(): JSX.Element {
                     : "text-slate-700 hover:text-green-700"
                 }`}
               >
-                Home
+                Dashboard
               </Link>
               <Link
                 to="/websites"

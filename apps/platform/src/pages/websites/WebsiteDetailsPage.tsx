@@ -5,7 +5,6 @@ import { useWebsiteDetails } from "../../features/websiteDetails/useWebsiteDetai
 import EnhancedAccessibilitySection from "./_components/EnhancedAccessibilitySection";
 import PerformanceCharts from "./_components/PerformanceCharts";
 import InteractiveElements from "./_components/InteractiveElements";
-import PerformanceMatrics from "./_components/PerformanceMatrics";
 import {
   ArrowLeft,
   Globe,
@@ -20,8 +19,9 @@ import {
   Eye,
   Activity,
   Shield,
-  Zap
+  Zap,
 } from "lucide-react";
+import AccessibilityChatbot from "./_components/AccessibilityChatbot";
 
 export default function WebsiteDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -214,7 +214,9 @@ export default function WebsiteDetailsPage() {
                   <AlertCircle className="w-6 h-6 text-red-600" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-red-800 mb-2">Something went wrong</h3>
+                  <h3 className="text-lg font-semibold text-red-800 mb-2">
+                    Something went wrong
+                  </h3>
                   <p className="text-red-700 mb-4">
                     {(snapshotsError || accessibilityError)?.message}
                   </p>
@@ -225,7 +227,8 @@ export default function WebsiteDetailsPage() {
                     >
                       Try Again
                     </button>
-                    {((snapshotsError?.message?.includes("login")) || (accessibilityError?.message?.includes("login"))) && (
+                    {(snapshotsError?.message?.includes("login") ||
+                      accessibilityError?.message?.includes("login")) && (
                       <Link
                         to="/login"
                         className="px-4 py-2 rounded-lg border border-red-300 text-red-700 font-medium hover:bg-red-50 transition-colors"
@@ -266,13 +269,17 @@ export default function WebsiteDetailsPage() {
               </div>
               <Activity className="w-5 h-5 text-green-500 opacity-60" />
             </div>
-            <div className="text-sm text-slate-500 mb-2">Accessibility Issues</div>
+            <div className="text-sm text-slate-500 mb-2">
+              Accessibility Issues
+            </div>
             <div className="text-3xl font-bold font-heading text-slate-800 mb-1">
               {accessibilityIssues?.length || 0}
             </div>
             <div className="text-xs text-amber-600 flex items-center gap-1">
               <Eye className="w-3 h-3" />
-              {(accessibilityIssues?.length || 0) > 0 ? "Needs attention" : "All clear"}
+              {(accessibilityIssues?.length || 0) > 0
+                ? "Needs attention"
+                : "All clear"}
             </div>
           </div>
 
@@ -283,7 +290,9 @@ export default function WebsiteDetailsPage() {
               </div>
               <Sparkles className="w-5 h-5 text-green-500 opacity-60" />
             </div>
-            <div className="text-sm text-slate-500 mb-2">AI Recommendations</div>
+            <div className="text-sm text-slate-500 mb-2">
+              AI Recommendations
+            </div>
             <div className="text-3xl font-bold font-heading text-slate-800 mb-1">
               {aiRecommendations ? "Ready" : "Generate"}
             </div>
@@ -322,31 +331,33 @@ export default function WebsiteDetailsPage() {
         )}
 
         {/* Interactive Elements Section */}
-        {snapshots && snapshots.length > 0 && snapshots[0]?.interactiveElements && (
-          <div className="mb-8">
-            <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-green-100/50 overflow-visible">
-              <div className="px-6 py-5 border-b border-green-100/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
-                    <ScanLine className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold font-heading text-slate-800">
-                      Interactive Elements
-                    </h2>
-                    <p className="text-sm text-slate-500">
-                      Buttons, links, forms, and input analysis
-                    </p>
+        {snapshots &&
+          snapshots.length > 0 &&
+          snapshots[0]?.interactiveElements && (
+            <div className="mb-8">
+              <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-green-100/50 overflow-visible">
+                <div className="px-6 py-5 border-b border-green-100/50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
+                      <ScanLine className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold font-heading text-slate-800">
+                        Interactive Elements
+                      </h2>
+                      <p className="text-sm text-slate-500">
+                        Buttons, links, forms, and input analysis
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="p-6">
-                <InteractiveElements snapshot={snapshots[0]} />
+                <div className="p-6">
+                  <InteractiveElements snapshot={snapshots[0]} />
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Enhanced Snapshots section */}
         <div className="mb-8">
@@ -426,8 +437,17 @@ export default function WebsiteDetailsPage() {
             </div>
           </div>
         </div>
-
-
+        <div>
+          <AccessibilityChatbot
+            websiteId={websiteId}
+            snapshotId={
+              snapshots && snapshots.length > 0
+                ? //@ts-ignore
+                  snapshots[0]._id || snapshots[0].id || snapshots[0].snapshotId
+                : null
+            }
+          />
+        </div>
 
         {/* Enhanced bottom section with tech badges */}
         <div className="text-center">

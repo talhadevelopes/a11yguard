@@ -1,43 +1,43 @@
 //website related
 export interface Website {
-  id: string
-  name: string
-  url: string
-  isActive?: boolean
-  createdAt: string
-  updatedAt?: string
-  latestSnapshot?: string | null
+  id: string;
+  name: string;
+  url: string;
+  isActive?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  latestSnapshot?: string | null;
 }
 
 export interface Snapshot {
-  id: string
-  website?: string
-  content: string
-  capturedAt: string
-  contentPreview?: string
+  id: string;
+  website?: string;
+  content: string;
+  capturedAt: string;
+  contentPreview?: string;
   interactiveElements?: {
-    buttons: any[]
-    links: any[]
-    inputs: any[]
-    forms: any[]
-  }
-  accessibilityIssues?: AccessibilityIssue[]
-  analyzedAt?: string | null
+    buttons: any[];
+    links: any[];
+    inputs: any[];
+    forms: any[];
+  };
+  accessibilityIssues?: AccessibilityIssue[];
+  analyzedAt?: string | null;
   metadata?: {
     elementCounts?: {
-      headings: number
-      paragraphs: number
-      links: number
-      inputs: number
-      buttons: number
-      forms: number
-    }
+      headings: number;
+      paragraphs: number;
+      links: number;
+      inputs: number;
+      buttons: number;
+      forms: number;
+    };
     performance?: {
-      captureTime: number
-      totalElements: number
-      elementsPerSecond: number
-    }
-  }
+      captureTime: number;
+      totalElements: number;
+      elementsPerSecond: number;
+    };
+  };
 }
 
 // types/websiteTypes.ts (add this interface)
@@ -59,32 +59,30 @@ export interface SnapshotDiff {
   };
 }
 
-
 export interface AccessibilityIssue {
-  severity: string
-  type?: string // Matches 'type' in your backend model
-  message?: string // Matches 'message' in your backend model
-  description?: string,
-  source?: string
-  context?: string
-  selector?: string
+  severity: string;
+  type?: string; // Matches 'type' in your backend model
+  message?: string; // Matches 'message' in your backend model
+  description?: string;
+  source?: string;
+  context?: string;
+  selector?: string;
   // severity is NOT present in your backend Snapshot model's accessibilityIssues array.
   // If you need severity for automated issues, you must add it to your backend Snapshot schema.
 }
 
 // Define the DiffType enum (or union type)
-export type DiffType = "lines" | "words" | "chars"
-
+export type DiffType = "lines" | "words" | "chars";
 
 export interface AggregatedWebsiteData {
-  totalSnapshots: number
-  totalAccessibilityIssues: number
+  totalSnapshots: number;
+  totalAccessibilityIssues: number;
   // Removed accessibilityIssuesBySeverity for automated issues as 'severity' is not in backend Snapshot model
-  accessibilityIssuesByType: Record<string, number>
+  accessibilityIssuesByType: Record<string, number>;
   totalInteractiveElements: {
-    buttons: number
-    links: number
-    inputs: number
-    forms: number
-  }
+    buttons: number;
+    links: number;
+    inputs: number;
+    forms: number;
+  };
 }
