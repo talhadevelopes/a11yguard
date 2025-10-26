@@ -1,5 +1,5 @@
 app = "a11yguard-backend"
-primary_region = "iad"
+primary_region = "bom"
 
 [build]
   image = "talhadevelopes/a11yguard-backend:latest"
