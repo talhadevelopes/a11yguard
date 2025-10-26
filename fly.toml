@@ -2,8 +2,7 @@ app = 'a11yguard-backend'
 primary_region = 'iad'
 
 [build]
-  dockerfile = "packages/backend/Dockerfile"
-  ignorefile = ".dockerignore"
+  image = "talhadevelopes/a11yguard-backend:latest"
 
 [http_service]
   internal_port = 4000
