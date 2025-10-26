@@ -25,6 +25,14 @@ jobs:
           push: true
           tags: talhadevelopes/a11yguard-backend:latest
 
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+      
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only --config fly.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
   build-frontend:
     runs-on: ubuntu-latest
     steps:
