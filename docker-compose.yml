@@ -1,130 +1,28 @@
 version: '3.8'
 
 services:
-  # ================================
-  # MongoDB Database
-  # ================================
-  mongodb:
-    image: mongo:7-jammy
-    container_name: a11yguard-mongodb
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-password}
-      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-a11yguard}
-    volumes:
-      - mongodb_data:/data/db
-      - mongodb_config:/data/configdb
-    networks:
-      - a11yguard-network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-
-  # ================================
-  # Redis Cache
-  # ================================
-  redis:
-    image: redis:7-alpine
-    container_name: a11yguard-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redispassword}
-    volumes:
-      - redis_data:/data
-    networks:
-      - a11yguard-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-  # ================================
-  # Backend Service
-  # ================================
   backend:
     build:
       context: .
       dockerfile: packages/backend/Dockerfile
-    image: talhadevelopes/a11yguard-backend:latest
-    container_name: a11yguard-backend
-    restart: unless-stopped
     ports:
       - "4000:4000"
     environment:
-      NODE_ENV: ${NODE_ENV:-production}
-      PORT: 4000
-      MONGO_URI: mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-password}@mongodb:27017/${MONGO_DATABASE:-a11yguard}?authSource=admin
-      REDIS_URL: redis://:${REDIS_PASSWORD:-redispassword}@redis:6379
+      CLIENT_URL: ${CLIENT_URL}
       JWT_SECRET: ${JWT_SECRET}
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      CLIENT_URL: ${CLIENT_URL:-http://localhost}
-    depends_on:
-      mongodb:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - a11yguard-network
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      MONGO_URI: ${MONGO_URI}
+      REDIS_URL: ${REDIS_URL}
+      AI_API_KEY_CHATBOT: ${AI_API_KEY_CHATBOT}
+      AI_API_KEY_RECC: ${AI_API_KEY_RECC}
+      AI_API_KEY_CODE_FIX: ${AI_API_KEY_CODE_FIX}
 
-  # ================================
-  # Frontend Service
-  # ================================
   frontend:
     build:
       context: .
       dockerfile: apps/platform/Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:4000}
-    image: talhadevelopes/a11yguard-platform:latest
-    container_name: a11yguard-frontend
-    restart: unless-stopped
+        VITE_PUBLIC_BACKEND_URL: ${VITE_PUBLIC_BACKEND_URL}
     ports:
       - "80:80"
     depends_on:
-      backend:
-        condition: service_healthy
-    networks:
-      - a11yguard-network
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-      start_period: 10s
-
-# ================================
-# Networks
-# ================================
-networks:
-  a11yguard-network:
-    driver: bridge
-    name: a11yguard-network
-
-# ================================
-# Volumes
-# ================================
-volumes:
-  mongodb_data:
-    driver: local
-    name: a11yguard_mongodb_data
-  mongodb_config:
-    driver: local
-    name: a11yguard_mongodb_config
-  redis_data:
-    driver: local
-    name: a11yguard_redis_data
+      - backend

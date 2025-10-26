@@ -179,4 +179,4 @@ Context-aware guidance eliminates need for manual WCAG documentation lookup
 
 Iterative workflow support through conversation history
 
-Lower barrier to entry for developers new to accessibility
+Lower barrier to entry for developers new to **accessibility**
