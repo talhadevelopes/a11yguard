@@ -4,12 +4,9 @@ RUN corepack enable && corepack prepare pnpm@10.4.1 --activate
 
 WORKDIR /app
 
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml turbo.json ./
-COPY packages/backend/package.json ./packages/backend/
+COPY . .
 
 RUN pnpm install --frozen-lockfile
-
-COPY packages/backend ./packages/backend
 
 WORKDIR /app/packages/backend
 RUN pnpm build
@@ -24,12 +21,11 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 
 WORKDIR /app
 
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY packages/backend/package.json ./packages/backend/
-
-RUN pnpm install --prod --frozen-lockfile
-
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=builder /app/packages/backend/dist ./packages/backend/dist
+COPY --from=builder /app/packages/backend/package.json ./packages/backend/package.json
 
 WORKDIR /app/packages/backend
 

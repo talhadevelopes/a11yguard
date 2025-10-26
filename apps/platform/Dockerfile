@@ -4,12 +4,9 @@ RUN corepack enable && corepack prepare pnpm@10.4.1 --activate
 
 WORKDIR /app
 
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml turbo.json ./
-COPY apps/platform/package.json ./apps/platform/
+COPY . .
 
 RUN pnpm install --frozen-lockfile
-
-COPY apps/platform ./apps/platform
 
 ARG VITE_PUBLIC_BACKEND_URL=http://localhost:4000
 ENV VITE_PUBLIC_BACKEND_URL=$VITE_PUBLIC_BACKEND_URL
