@@ -4,9 +4,13 @@ RUN corepack enable && corepack prepare pnpm@10.4.1 --activate
 
 WORKDIR /app
 
-COPY . .
+COPY package.json .
+COPY pnpm-lock.yaml .
+COPY pnpm-workspace.yaml .
 
 RUN pnpm install --frozen-lockfile
+
+COPY . .
 
 WORKDIR /app/packages/backend
 RUN pnpm build

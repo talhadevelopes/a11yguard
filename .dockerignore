@@ -5,3 +5,7 @@ dist
 **/dist
 .env
 .env.local
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
+!package.json
+!turbo.json
