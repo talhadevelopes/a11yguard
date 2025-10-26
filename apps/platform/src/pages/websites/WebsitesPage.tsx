@@ -394,7 +394,7 @@ export default function WebsitesPage() {
                       <DropdownMenuContent side="top" className="w-72 text-green-500">
                         <DropdownMenuItem asChild>
                           <a
-                            href={`http://localhost:5173/mind/${website.id}`}
+                            href={`${window.location.origin}/mind/${website.id}`}
                             rel="noopener noreferrer"
                             
                           >
@@ -404,7 +404,7 @@ export default function WebsitesPage() {
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <a
-                            href={`http://localhost:5173/websites/${website.id}`}
+                            href={`${window.location.origin}/websites/${website.id}`}
                             
                             rel="noopener noreferrer"
                           >
