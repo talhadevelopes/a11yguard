@@ -29,6 +29,8 @@ COPY --from=builder /app/packages/backend/package.json ./packages/backend/packag
 
 WORKDIR /app/packages/backend
 
-EXPOSE 4000
+EXPOSE 4000 8080
+
+ENV PORT=4000
 
 CMD ["node", "dist/index.js"]
