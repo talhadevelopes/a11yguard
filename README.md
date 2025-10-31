@@ -1185,10 +1185,9 @@ git push origin feature/amazing-feature
 </div>
 
 ---
-
 ## 📄 **License**
+
 Copyright © 2025 WebLenses / allyGuard. All rights reserved.
-```
 
 [📄 Read Full License](LICENSE)
 
