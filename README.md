@@ -8,7 +8,6 @@
 
 [![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Try_Now-success?style=for-the-badge)](https://a11yguard-platform.vercel.app/)
 [![Backend API](https://img.shields.io/badge/⚡_Backend_API-Live-blue?style=for-the-badge)](https://a11yguard-backend.fly.dev)
-[![MIT License](https://img.shields.io/badge/📄_License-MIT-purple?style=for-the-badge)](LICENSE)
 
 [✨ Features](#-core-features) • [🎮 Demo](#-live-demo--quick-start) • [🏗️ Architecture](#%EF%B8%8F-system-architecture) • [📖 API Docs](#-api-documentation) • [🚀 Quick Start](#-installation--setup)
 
@@ -1188,25 +1187,7 @@ git push origin feature/amazing-feature
 ---
 
 ## 📄 **License**
-
-**This project is licensed under the MIT License**
-
-```text
-MIT License - Copyright (c) 2025 A11yGuard
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+Copyright © 2025 WebLenses / allyGuard. All rights reserved.
 ```
 
 [📄 Read Full License](LICENSE)
