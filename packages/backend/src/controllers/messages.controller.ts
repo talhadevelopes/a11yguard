@@ -1,0 +1,52 @@
+import type { Response } from 'express';
+import type { AuthRequest } from '../middleware/auth';
+import { ChatMessage } from '../models';
+
+const parseBefore = (before?: string) => (before ? new Date(before) : undefined);
+
+export class MessagesController {
+  static async getGroupHistory(req: AuthRequest, res: Response) {
+    try {
+      const userId = req.userId!;
+      const limit = Math.min(Number(req.query.limit) || 50, 200);
+      const before = parseBefore(req.query.before as string | undefined);
+
+      const query: any = { userId, type: 'group' };
+      if (before) query.createdAt = { $lt: before };
+
+      const messages = await ChatMessage.find(query)
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean();
+
+      return res.json({ success: true, data: { messages } });
+    } catch (err) {
+      console.error('getGroupHistory error', err);
+      return res.status(500).json({ success: false, message: 'Server error' });
+    }
+  }
+
+  static async getDmHistory(req: AuthRequest, res: Response) {
+    try {
+      const userId = req.userId!;
+      const selfMemberId = req.memberId!;
+      const peerMemberId = req.params.peerMemberId;
+      const limit = Math.min(Number(req.query.limit) || 50, 200);
+      const before = parseBefore(req.query.before as string | undefined);
+
+      const pair = [selfMemberId, peerMemberId].sort().join(':');
+      const query: any = { userId, type: 'dm', conversationId: pair };
+      if (before) query.createdAt = { $lt: before };
+
+      const messages = await ChatMessage.find(query)
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean();
+
+      return res.json({ success: true, data: { messages } });
+    } catch (err) {
+      console.error('getDmHistory error', err);
+      return res.status(500).json({ success: false, message: 'Server error' });
+    }
+  }
+}

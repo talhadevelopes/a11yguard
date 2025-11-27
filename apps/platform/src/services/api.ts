@@ -140,31 +140,35 @@ export const memberService = {
   }
 };
 
-// Report Service
-export const reportService = {
-  generateReportGET: async () => {
+// Messages Service (Chat History)
+export const messagesService = {
+  getGroupMessages: async (params?: { limit?: number; before?: string }) => {
     setupInterceptors();
-    const response = await axios.get(`${API_BASE_URL}/api/reports/accessibility-pdf`);
-    return response.data.data;
+    const search = new URLSearchParams();
+    if (params?.limit) search.set('limit', String(params.limit));
+    if (params?.before) search.set('before', params.before);
+    const response = await axios.get(`${API_BASE_URL}/api/messages/group${search.toString() ? `?${search.toString()}` : ''}`);
+    return response.data.data as { messages: any[] };
   },
-
-  generateReportPOST: async (reportData: any) => {
+  getDmMessages: async (peerMemberId: string, params?: { limit?: number; before?: string }) => {
     setupInterceptors();
-    const response = await axios.post(`${API_BASE_URL}/api/reports/accessibility-pdf`, reportData);
-    return response.data.data;
+    const search = new URLSearchParams();
+    if (params?.limit) search.set('limit', String(params.limit));
+    if (params?.before) search.set('before', params.before);
+    const response = await axios.get(`${API_BASE_URL}/api/messages/dm/${peerMemberId}${search.toString() ? `?${search.toString()}` : ''}`);
+    return response.data.data as { messages: any[] };
   },
-
-  // New: Generate report as PDF Blob
-  generateReportPdf: async (manualIssues: any[] = []) => {
-    setupInterceptors();
-    const response = await axios.post(
-      `${API_BASE_URL}/api/reports/accessibility-pdf`,
-      { manualIssues },
-      { responseType: 'blob' }
-    );
-    return response.data as Blob;
-  }
 };
+
+// Presence Service
+export const presenceService = {
+  getOnline: async () => {
+    setupInterceptors();
+    const response = await axios.get(`${API_BASE_URL}/api/presence/online`);
+    return response.data.data as { online: string[] };
+  },
+};
+
 
 // Utility Service
 export const utilityService = {

@@ -9,6 +9,10 @@ import { createClient, RedisClientType } from "redis";
 import hpp from "hpp";
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize'
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { initChatSockets } from "./sockets/chat";
+import { bindPresenceRedis } from "./controllers/presence.controller";
 dotenv.config();
 
 const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
@@ -61,12 +65,13 @@ export const startServer = async () => {
     app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
     // CORS configuration
+    const allowedOrigins = [
+      process.env.CLIENT_URL || "http://localhost:5173",
+      /^chrome-extension:\/\/[a-z]+$/,
+    ];
     app.use(
       cors({
-        origin: [
-          process.env.CLIENT_URL || "http://localhost:5173",
-          /^chrome-extension:\/\/[a-z]+$/,
-        ],
+        origin: allowedOrigins,
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Added more methods
         credentials: true, // Allow cookies/auth headers
       })
@@ -106,9 +111,10 @@ export const startServer = async () => {
     app.use("/api/accessibility", routes.accessibility); // Add standalone accessibility routes
     // app.use("/api/chat", routes.chat);
     app.use("/api/members", routes.members);
-    app.use("/api/reports", routes.reports);
     app.use("/api/chat", routes.chatbot); // ADD THIS LINE
     app.use("/api", routes.utility);
+    app.use("/api/messages", routes.messages);
+    app.use("/api/presence", routes.presence);
 
     // 404 handler
     app.use("*", (req, res) => {
@@ -137,8 +143,19 @@ export const startServer = async () => {
       }
     );
 
-    // Start the server
-    const server = app.listen(PORT, () => {
+    // Start the server with Socket.IO
+    const httpServer = createServer(app);
+    const io = new Server(httpServer, {
+      cors: {
+        origin: allowedOrigins,
+        methods: ["GET", "POST"],
+        credentials: true,
+      },
+    });
+    initChatSockets(io, redisClient);
+    bindPresenceRedis(redisClient);
+
+    const server = httpServer.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
       console.log(`🏥 Health check: http://localhost:${PORT}/api/health`);
     });

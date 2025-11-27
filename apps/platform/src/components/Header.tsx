@@ -90,12 +90,12 @@ export default function Header(): JSX.Element {
               <Link
                 to="/reports"
                 className={`relative inline-flex items-end gap-2 px-1 py-2 text-sm font-medium transition-colors ${
-                  isActive("/reports")
+                  isActive("/chat")
                     ? "text-green-700 font-semibold underline underline-offset-4"
                     : "text-slate-700 hover:text-green-700"
                 }`}
               >
-                Reports
+                Chat
               </Link>
             </nav>
 

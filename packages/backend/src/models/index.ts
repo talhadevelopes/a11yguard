@@ -8,3 +8,5 @@ export { Snapshot } from './Snapshot';
 export type { ISnapshot } from './Snapshot';
 export { AccessibilityIssue } from './AccessibilityIssue';
 export type { IAccessibilityIssue } from './AccessibilityIssue';
+export { ChatMessage } from './ChatMessage';
+export type { IChatMessage } from './ChatMessage';
