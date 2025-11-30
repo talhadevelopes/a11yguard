@@ -27,9 +27,13 @@ import {
   Brain,
   Chrome,
 } from "lucide-react";
-import { AuthRequiredError, ErrorDisplay, LoadingDisplay } from "../../components";
+import {
+  AuthRequiredError,
+  ErrorDisplay,
+  LoadingDisplay,
+} from "../../components";
 
-export default function WebsitesPage() {
+export default function Websites() {
   const { user } = useAuthStore();
   const { data: websites, isLoading, isError, error } = useWebsitesQuery();
   const [searchQuery, setSearchQuery] = useState("");
@@ -88,8 +92,8 @@ export default function WebsitesPage() {
   }
 
   if (isLoading) {
-  return <LoadingDisplay message="Loading website data..." />;
-}
+    return <LoadingDisplay message="Loading website data..." />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50/30 to-emerald-50/50 relative overflow-hidden">
@@ -143,43 +147,6 @@ export default function WebsitesPage() {
                     <X className="h-4 w-4" />
                   </button>
                 )}
-              </div>
-
-              {/* Filter Dropdown */}
-              <div className="flex gap-3">
-                <div className="relative">
-                  <select
-                    value={filterStatus}
-                    onChange={(e) =>
-                      setFilterStatus(
-                        e.target.value as "all" | "active" | "inactive"
-                      )
-                    }
-                    className="appearance-none bg-white/50 backdrop-blur-sm border border-slate-200 rounded-xl px-4 py-3 pr-8 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 cursor-pointer"
-                  >
-                    <option value="all">All Websites</option>
-                    <option value="active">Active Only</option>
-                    <option value="inactive">Inactive Only</option>
-                  </select>
-                  <Filter className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-                </div>
-
-                <div className="relative">
-                  <select
-                    value={sortBy}
-                    onChange={(e) =>
-                      setSortBy(
-                        e.target.value as "name" | "created" | "updated"
-                      )
-                    }
-                    className="appearance-none bg-white/50 backdrop-blur-sm border border-slate-200 rounded-xl px-4 py-3 pr-8 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 cursor-pointer"
-                  >
-                    <option value="created">Sort by Created</option>
-                    <option value="updated">Sort by Updated</option>
-                    <option value="name">Sort by Name</option>
-                  </select>
-                  <TrendingUp className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-                </div>
               </div>
             </div>
 
@@ -272,41 +239,13 @@ export default function WebsitesPage() {
                   </div>
 
                   <div className="flex gap-3">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Link
-                          to={`/websites/${website.id}`}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
-                        >
-                          <Eye className="w-4 h-4" />
-                          View Details
-                        </Link>
-                      </DropdownMenuTrigger>
-
-                      <DropdownMenuContent
-                        side="top"
-                        className="w-72 text-green-500"
-                      >
-                        <DropdownMenuItem asChild>
-                          <a
-                            href={`${window.location.origin}/mind/${website.id}`}
-                            rel="noopener noreferrer"
-                          >
-                            <Brain className="mr-1" />
-                            Mind Page
-                          </a>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <a
-                            href={`${window.location.origin}/websites/${website.id}`}
-                            rel="noopener noreferrer"
-                          >
-                            <Chrome className="mr-1" />
-                            Details Page
-                          </a>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Link
+                      to={`/websites/${website.id}`}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
+                    >
+                      <Eye className="w-4 h-4" />
+                      View Details
+                    </Link>
                   </div>
                 </div>
 

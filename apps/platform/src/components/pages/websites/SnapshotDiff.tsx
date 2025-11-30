@@ -5,7 +5,7 @@ import {
   type DiffType,
 } from "../../../utils/diff-utils";
 import type { Snapshot } from "@a11yguard/shared";
-import { CodeComparison } from "@a11yguard/shared/components/code-comparison";
+import { CodeComparison } from "../../../utils/code-comparison";
 import { diffLines } from "diff";
 
 interface SnapshotDiffProps {

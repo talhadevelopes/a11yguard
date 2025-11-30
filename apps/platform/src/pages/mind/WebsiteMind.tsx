@@ -44,7 +44,7 @@ export default function WebsiteMindPage() {
   const [elementCounts, setElementCounts] = useState<Record<string, number>>(
     {}
   );
-  
+
   // AI-related state
   const [_aiAnalysis, setAiAnalysis] = useState<string | null>(null);
 
@@ -84,7 +84,19 @@ export default function WebsiteMindPage() {
         setError("Snapshot content is empty");
         return;
       }
-      parseHTMLContent(latestSnapshot.content);
+
+      // Parse and set the DOM tree + element counts
+      const { domTree, elementCounts } = parseHTMLContent(
+        latestSnapshot.content
+      );
+
+      if (!domTree) {
+        setError("Failed to parse snapshot content");
+        return;
+      }
+
+      setParsedDOM(domTree);
+      setElementCounts(elementCounts);
     }
   }, [snapshots, snapshotsLoading, snapshotsError]);
 

@@ -13,6 +13,10 @@ export default function App() {
   // Redirect logic
   const publicPaths = ["/", "/login", "/signup"];
   const isOnPublicPath = publicPaths.includes(location.pathname);
+  
+  // Paths where header should not be shown
+  const noHeaderPaths = ["/chat"];
+  const shouldShowHeader = user && user.onboarded && !noHeaderPaths.includes(location.pathname);
 
   useEffect(() => {
     if (!isAuthenticated && !isOnPublicPath) {
@@ -28,11 +32,11 @@ export default function App() {
     }
   }, [isAuthenticated, user, location.pathname, navigate, isOnPublicPath]);
 
-  // If logged in and onboarded, or on a public path, render content
   return (
     <>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        {user && user.onboarded && <Header />} <Outlet />{" "}
+        {shouldShowHeader && <Header />}
+        <Outlet />
       </ThemeProvider>
     </>
   );

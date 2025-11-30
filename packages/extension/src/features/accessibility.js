@@ -79,7 +79,10 @@ async function captureAccessibilityIssues(tabId) {
   return results[0].result;
 }
 
-function renderAccessibilityResults(allIssues, targetId = "accessibility-results") {
+function renderAccessibilityResults(
+  allIssues,
+  targetId = "accessibility-results"
+) {
   const container = document.getElementById(targetId);
   if (!allIssues.length) {
     container.innerHTML = `<div class="placeholder-message success">No accessibility issues found!</div>`;
@@ -126,9 +129,9 @@ async function runAccessibilityCheck() {
   `;
 
   // Ensure minimal inline CSS for issues is present (fallback if popup.css didn't load)
-  if (!document.getElementById('accessibility-inline-styles')) {
-    const s = document.createElement('style');
-    s.id = 'accessibility-inline-styles';
+  if (!document.getElementById("accessibility-inline-styles")) {
+    const s = document.createElement("style");
+    s.id = "accessibility-inline-styles";
     s.textContent = `
       .issues-summary{display:flex;gap:8px;margin-bottom:8px;padding:8px;background:#f3f4f6;border-radius:6px}
       .issue{border:1px solid #e5e7eb;border-left-width:4px;border-radius:6px;padding:10px;background:#fff;margin-bottom:8px}
@@ -143,109 +146,136 @@ async function runAccessibilityCheck() {
     document.head.appendChild(s);
   }
 
-  const loadingEl = document.getElementById('accessibility-loading');
-  const stepsEl = document.getElementById('accessibility-steps');
-  const innerEl = document.getElementById('accessibility-results-inner');
+  const loadingEl = document.getElementById("accessibility-loading");
+  const stepsEl = document.getElementById("accessibility-steps");
+  const innerEl = document.getElementById("accessibility-results-inner");
 
   const logStep = (text, ms) => {
     try {
       if (!stepsEl) return;
       const now = new Date();
       const time = now.toLocaleTimeString();
-      const div = document.createElement('div');
-      div.className = 'accessibility-log-line';
-      div.textContent = `[${time}] ${text}` + (typeof ms === 'number' ? ` (${Math.round(ms)} ms)` : '');
+      const div = document.createElement("div");
+      div.className = "accessibility-log-line";
+      div.textContent =
+        `[${time}] ${text}` +
+        (typeof ms === "number" ? ` (${Math.round(ms)} ms)` : "");
       stepsEl.appendChild(div);
       // keep log short
-      while (stepsEl.children.length > 60) stepsEl.removeChild(stepsEl.firstChild);
+      while (stepsEl.children.length > 60)
+        stepsEl.removeChild(stepsEl.firstChild);
     } catch (e) {
-      console.warn('logStep error', e);
+      console.warn("logStep error", e);
     }
   };
 
-  const updateLoading = (txt) => { const t = document.getElementById('accessibility-loading-text'); if (t) t.textContent = txt; };
+  const updateLoading = (txt) => {
+    const t = document.getElementById("accessibility-loading-text");
+    if (t) t.textContent = txt;
+  };
 
   try {
-    if (!window.authManager?.isAuthenticated) throw new Error('Not authenticated');
+    if (!window.authManager?.isAuthenticated)
+      throw new Error("Not authenticated");
 
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab?.id) throw new Error('No active tab found');
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    if (!tab?.id) throw new Error("No active tab found");
 
-    logStep('Starting DOM capture');
+    logStep("Starting DOM capture");
     const captureStart = performance.now();
     const { html, issues, url } = await captureAccessibilityIssues(tab.id);
     const captureMs = performance.now() - captureStart;
-    logStep('Captured DOM', captureMs);
+    logStep("Captured DOM", captureMs);
     logStep(`Captured issues: ${Array.isArray(issues) ? issues.length : 0}`);
 
     // AI analysis step with timing and logs
-    updateLoading('Running AI analysis...');
-    logStep('Sending content to AI');
+    updateLoading("Running accessibility analysis...");
+    logStep("Analyzing with axe-core");
+
     const aiStart = performance.now();
     let aiIssues = [];
     // heartbeat while waiting for AI (updates every 1s)
     let heartbeatCount = 0;
     const hb = setInterval(() => {
       heartbeatCount += 1;
-      updateLoading(`Waiting for AI response... ${heartbeatCount}s`);
+      updateLoading(`Analyzing accessibility... ${heartbeatCount}s`);
       // append a short heartbeat log every 3 seconds
-      if (heartbeatCount % 3 === 0) logStep(`Waiting for AI response... ${heartbeatCount}s`);
+      if (heartbeatCount % 3 === 0)
+        logStep(`Analysis in progress... ${heartbeatCount}s`);
     }, 1000);
     try {
       const ai = await window.apiManager.analyzeAccessibility(html);
       const aiMs = performance.now() - aiStart;
       aiIssues = ai && Array.isArray(ai.issues) ? ai.issues : [];
-      logStep(`AI response received`, aiMs);
-      logStep(`AI issues: ${aiIssues.length}`);
+      logStep(`Accessibility analysis completed`, aiMs);
+      logStep(`Detected issues: ${aiIssues.length}`);
     } catch (e) {
       const aiMs = performance.now() - aiStart;
       logStep(`AI failed: ${e && e.message ? e.message : String(e)}`, aiMs);
-      console.warn('AI analysis failed:', e);
+      console.warn("AI analysis failed:", e);
     } finally {
       clearInterval(hb);
-      updateLoading('Processing results...');
+      updateLoading("Processing results...");
     }
 
-    updateLoading('Rendering results...');
+    updateLoading("Rendering results...");
     try {
       const combined = [...(issues || []), ...aiIssues];
-      renderAccessibilityResults(combined, 'accessibility-results-inner');
-      logStep('Rendered full results');
-      updateLoading('Done');
+      renderAccessibilityResults(combined, "accessibility-results-inner");
+      logStep("Rendered full results");
+      updateLoading("Done");
     } catch (rErr) {
-      console.warn('Failed to render results:', rErr);
-      logStep('Render failed: ' + (rErr && rErr.message ? rErr.message : String(rErr)));
+      console.warn("Failed to render results:", rErr);
+      logStep(
+        "Render failed: " + (rErr && rErr.message ? rErr.message : String(rErr))
+      );
     }
 
     // Save results and log timing; skip save if no issues
     // combined already defined above if used; recompute to be safe
     const combined = [...(issues || []), ...aiIssues];
     if (!combined.length) {
-      logStep('No issues found; skipping save');
-      updateLoading('Done');
+      logStep("No issues found; skipping save");
+      updateLoading("Done");
       return;
     }
 
-    updateLoading('Saving results...');
-    logStep('Saving results to backend');
+    updateLoading("Saving results...");
+    logStep("Saving results to backend");
     try {
       const saveStart = performance.now();
       const hostname = new URL(url).hostname;
-      const website = await window.apiManager.createWebsite({ url: hostname, name: hostname });
-      const payload = { issues: combined, analyzedAt: new Date().toISOString() };
-      await window.apiManager.saveAccessibilityResults(website.id || website._id, payload);
+      const website = await window.apiManager.createWebsite({
+        url: hostname,
+        name: hostname,
+      });
+      const payload = {
+        issues: combined,
+        analyzedAt: new Date().toISOString(),
+      };
+      await window.apiManager.saveAccessibilityResults(
+        website.id || website._id,
+        payload
+      );
       const saveMs = performance.now() - saveStart;
-      logStep('Save completed', saveMs);
-      updateLoading('Done');
+      logStep("Save completed", saveMs);
+      updateLoading("Done");
     } catch (saveErr) {
-      console.warn('Failed to save accessibility results:', saveErr);
-      logStep('Save failed: ' + (saveErr && saveErr.message ? saveErr.message : String(saveErr)));
-      updateLoading('Done (save failed)');
+      console.warn("Failed to save accessibility results:", saveErr);
+      logStep(
+        "Save failed: " +
+          (saveErr && saveErr.message ? saveErr.message : String(saveErr))
+      );
+      updateLoading("Done (save failed)");
     }
   } catch (err) {
-    console.error('Accessibility check error:', err);
-    if (innerEl) innerEl.innerHTML = `<div class="placeholder-message error">Error: ${err.message}</div>`;
-    updateLoading('Error');
+    console.error("Accessibility check error:", err);
+    if (innerEl)
+      innerEl.innerHTML = `<div class="placeholder-message error">Error: ${err.message}</div>`;
+    updateLoading("Error");
   }
 }
 

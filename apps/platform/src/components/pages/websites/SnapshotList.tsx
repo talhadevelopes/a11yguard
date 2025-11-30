@@ -126,30 +126,6 @@ export default function SnapshotList({
 
   return (
     <div className="space-y-8">
-      {/* Performance charts section */}
-      {previewSnapshot && (
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-green-100/50 overflow-hidden">
-          <div className="px-6 py-5 border-b border-green-100/50">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-lg">
-                <TrendingUp className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold font-heading text-slate-800">
-                  Performance Overview
-                </h2>
-                <p className="text-sm text-slate-500">
-                  Real-time metrics and performance insights
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="p-6">
-            <PerformanceCharts snapshot={previewSnapshot} />
-          </div>
-        </div>
-      )}
-
       {/* Main snapshots grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left: Snapshots list */}
@@ -292,13 +268,7 @@ export default function SnapshotList({
                 capturedAt={previewSnapshot.capturedAt} 
               />
               
-              <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-green-100/50 p-6">
-                <h4 className="font-semibold font-heading text-slate-800 mb-4 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-green-500" />
-                  Performance Metrics
-                </h4>
-                {/* <PM snapshot={previewSnapshot} /> */}
-              </div>
+              
             </div>
           ) : (
             <div className="bg-slate-50/80 backdrop-blur-sm border border-slate-200/50 rounded-2xl p-12 text-center">

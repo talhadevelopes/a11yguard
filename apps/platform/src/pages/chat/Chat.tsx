@@ -3,6 +3,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { memberService, messagesService, presenceService } from '../../services/api';
 import { getChatSocket } from '../../services/chatSocket';
 import type { Member } from '@a11yguard/shared';
+import { Search, Phone, Video, User, Send, Paperclip, Smile } from 'lucide-react';
 
 interface ChatMessage {
   _id: string;
@@ -33,8 +34,9 @@ const ChatPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [typingPeers, setTypingPeers] = useState<Set<string>>(new Set()); // memberIds typing in current view
+  const [typingPeers, setTypingPeers] = useState<Set<string>>(new Set());
   const [viewKey, setViewKey] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const socket = useMemo(() => getChatSocket(), []);
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -107,7 +109,6 @@ const ChatPage: React.FC = () => {
     socket.on('dm:new', onDmNew);
     socket.on('typing', onTyping);
     socket.on('dm:read', (payload: { readerMemberId: string; lastCreatedAt: string; peerMemberId?: string }) => {
-      // When peer reads my messages up to lastCreatedAt, mark them read locally
       const readerId = payload.readerMemberId;
       const cutoff = new Date(payload.lastCreatedAt).getTime();
       if (selected.kind === 'dm' && readerId === selected.peerMemberId) {
@@ -131,24 +132,20 @@ const ChatPage: React.FC = () => {
       socket.off('dm:new', onDmNew);
       socket.off('typing', onTyping);
       socket.off('dm:read');
-      // do not disconnect globally (other pages may reuse), just remove listeners
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket, selected.kind, (selected as any).peerMemberId]);
 
-  // Keep a ref of current selection to avoid race conditions with async loads
   useEffect(() => {
     selectedRef.current = selected;
   }, [selected]);
 
   useEffect(() => {
-    // load messages when selection changes
     const load = async () => {
       setTypingPeers(new Set());
-      setMessages([]); // immediate clear to avoid flicker
+      setMessages([]);
       setIsLoading(true);
       setHasMore(true);
-      setViewKey((k) => k + 1); // force remount of list for clean switch
+      setViewKey((k) => k + 1);
       const myLoadId = ++loadIdRef.current;
       if (selected.kind === 'group') {
         const res = await messagesService.getGroupMessages({ limit: 50 });
@@ -161,7 +158,6 @@ const ChatPage: React.FC = () => {
         if (loadIdRef.current === myLoadId) {
           setMessages((res.messages || []).reverse());
           setHasMore((res.messages || []).length >= 50);
-          // mark as read for messages sent to me
           const lastIncoming = [...(res.messages || [])]
             .filter((m: any) => m.toMemberId === selfMemberId)
             .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
@@ -194,7 +190,6 @@ const ChatPage: React.FC = () => {
 
   const handleInputChange = (value: string) => {
     setInput(value);
-    // typing indicator
     if (selected.kind === 'group') {
       socket.emit('typing:start', { room: 'group' });
     } else {
@@ -281,7 +276,6 @@ const ChatPage: React.FC = () => {
       }
       if (older.length === 0) setHasMore(false);
       setMessages((prev) => [...older.reverse(), ...prev]);
-      // maintain scroll position
       setTimeout(() => {
         const newHeight = el.scrollHeight;
         el.scrollTop = newHeight - prevHeight + el.scrollTop;
@@ -290,38 +284,12 @@ const ChatPage: React.FC = () => {
     }
   };
 
-  const renderMember = (m: Member) => {
-    const isSelf = m.memberId === selfMemberId;
-    const isOnline = online.has(m.memberId);
-    return (
-      <div
-        key={m.memberId}
-        onClick={() => {
-          setSelected({ kind: 'dm', peerMemberId: m.memberId });
-          setMessages([]);
-          setIsLoading(true);
-          setHasMore(true);
-          setViewKey((k) => k + 1);
-        }}
-        className={`cursor-pointer px-3 py-2 rounded ${selected.kind === 'dm' && selected.peerMemberId === m.memberId ? 'bg-emerald-950' : 'hover:bg-emerald-950/60'}`}
-      >
-        <div className="flex items-center gap-2">
-          <span className={`inline-block w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-gray-600'}`} />
-          <span className="text-sm">
-            {m.name} {isSelf ? '(You)' : ''}
-          </span>
-        </div>
-      </div>
-    );
-  };
-
-  const selectedTitle = selected.kind === 'group' ? 'Group Chat' : `DM with ${members.find(m => m.memberId === selected.peerMemberId)?.name || selected.peerMemberId}`;
+  const selectedTitle = selected.kind === 'group' ? 'Group Chat' : `${members.find(m => m.memberId === selected.peerMemberId)?.name || selected.peerMemberId}`;
 
   const formatTime = (d: Date) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const formatDate = (d: Date) => d.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
 
   const renderContentWithMentions = (text: string) => {
-    // highlight @Name for any member
     const names = members.map((m) => m.name).sort((a, b) => b.length - a.length).map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
     if (names.length === 0) return <span>{text}</span>;
     const pattern = new RegExp(`@(${names.join('|')})`, 'g');
@@ -332,7 +300,7 @@ const ChatPage: React.FC = () => {
       const start = match.index;
       if (start > lastIndex) parts.push(<span key={lastIndex}>{text.slice(lastIndex, start)}</span>);
       parts.push(
-        <span key={start} className="text-emerald-400 font-medium">@{match[1]}</span>
+        <span key={start} className="text-blue-600 font-medium">@{match[1]}</span>
       );
       lastIndex = pattern.lastIndex;
     }
@@ -340,12 +308,65 @@ const ChatPage: React.FC = () => {
     return <>{parts}</>;
   };
 
+  const filteredMembers = members
+    .filter((m) => m.memberId && m.memberId !== selfMemberId)
+    .filter((m) => 
+      searchQuery.trim() === '' ? true : m.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+  // Get unread count for each member (simplified - you can enhance this)
+  const getUnreadCount = (memberId: string) => {
+    return 0; // Placeholder - implement based on your logic
+  };
+
+  const getLastMessage = (memberId: string) => {
+    // Find last message with this member
+    const memberMessages = messages.filter(m => 
+      m.fromMemberId === memberId || m.toMemberId === memberId
+    );
+    return memberMessages[memberMessages.length - 1]?.content || 'No messages yet';
+  };
+
+  const getLastMessageTime = (memberId: string) => {
+    const memberMessages = messages.filter(m => 
+      m.fromMemberId === memberId || m.toMemberId === memberId
+    );
+    const lastMsg = memberMessages[memberMessages.length - 1];
+    if (!lastMsg) return '';
+    const date = new Date(lastMsg.createdAt);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return `${diffDays}d ago`;
+  };
+
   return (
-    <div className="flex h-[calc(100vh-64px)] mt-30 bg-[#0b1f17] text-gray-100">
-      <aside className="w-72 border-r border-emerald-900/40 p-3 overflow-y-auto bg-[#0d261b]">
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar */}
+      <div className="w-96 p-4">
         <div className="mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Messages</h1>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+            />
+          </div>
+        </div>
+        
+        <div className="space-y-2 overflow-y-auto h-[calc(100vh-140px)]">
+          {/* Group Chat Card */}
           <div
-            className={`cursor-pointer px-3 py-2 rounded ${selected.kind === 'group' ? 'bg-emerald-950' : 'hover:bg-emerald-950/60'}`}
             onClick={() => {
               setSelected({ kind: 'group' });
               setMessages([]);
@@ -353,116 +374,197 @@ const ChatPage: React.FC = () => {
               setHasMore(true);
               setViewKey((k) => k + 1);
             }}
+            className={`bg-white rounded-xl p-4 cursor-pointer border border-gray-200 hover:shadow-md transition-shadow ${selected.kind === 'group' ? 'ring-2 ring-blue-500' : ''}`}
           >
-            <div className="flex items-center gap-2">
-              <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
-              <span className="font-medium text-emerald-300">Group Chat</span>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div className="text-xs uppercase text-emerald-400/80 mb-2">Members</div>
-          <div className="space-y-1">
-            {members
-              .filter((m) => m.memberId && m.memberId !== selfMemberId)
-              .map(renderMember)}
-          </div>
-        </div>
-      </aside>
-
-      <main className="flex-1 flex flex-col">
-        <header className="border-b border-emerald-900/40 p-4 bg-[#0f2b1f]">
-          <h2 className="font-semibold text-emerald-300">{selectedTitle}</h2>
-          {typingPeers.size > 0 && (
-            <div className="mt-1 text-xs text-emerald-400/80">
-              {Array.from(typingPeers)
-                .map((id) => members.find((m) => m.memberId === id)?.name || id)
-                .join(', ')}{' '}
-              is typing...
-            </div>
-          )}
-        </header>
-
-        <section key={viewKey} ref={listRef} onScroll={onScrollList} className="flex-1 overflow-y-auto p-4 space-y-3">
-          {isLoading && messages.length === 0 && (
-            <div className="text-sm text-emerald-300/70">Loading messages...</div>
-          )}
-          {messages.map((m, idx) => {
-            const mine = m.fromMemberId === selfMemberId;
-            const current = new Date(m.createdAt);
-            const prev = idx > 0 ? new Date(messages[idx - 1].createdAt) : null;
-            const showDate = !prev || prev.toDateString() !== current.toDateString();
-            return (
-              <React.Fragment key={m._id}>
-                {showDate && (
-                  <div className="flex justify-center my-2">
-                    <span className="text-xs text-emerald-300/70 bg-emerald-900/40 px-2 py-1 rounded-full">
-                      {formatDate(current)}
-                    </span>
-                  </div>
-                )}
-                <div className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[72%] rounded px-3 py-2 border ${mine ? 'bg-emerald-700 text-white border-emerald-600' : 'bg-[#10261d] text-gray-100 border-emerald-900/40'}`}>
-                    <div className="text-xs opacity-70 mb-1">
-                      {members.find((mm) => mm.memberId === m.fromMemberId)?.name || m.fromMemberId}
-                    </div>
-                    <div className="whitespace-pre-wrap break-words text-sm">
-                      {selected.kind === 'group' ? renderContentWithMentions(m.content) : m.content}
-                    </div>
-                    <div className="text-xs mt-1 flex items-center gap-2 justify-end">
-                      <span>{formatTime(current)}</span>
-                      {selected.kind === 'dm' && mine && (
-                        <span className={`inline-block text-lg font-bold ${m.readBy && m.readBy.includes((selected as any).peerMemberId) ? 'text-white' : 'text-emerald-400'}`}>
-                          {m.readBy && m.readBy.includes((selected as any).peerMemberId) ? '✓✓' : '✓'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+            <div className="flex items-start gap-3">
+              <div className="relative flex-shrink-0">
+                <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <User className="w-7 h-7 text-blue-600" />
                 </div>
-              </React.Fragment>
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-start mb-1">
+                  <h3 className="font-semibold text-gray-900">Group Chat</h3>
+                  <span className="text-xs text-gray-400">Active</span>
+                </div>
+                <p className="text-sm text-gray-600 truncate">{members.length} members</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Member Cards */}
+          {filteredMembers.map(m => {
+            const isOnline = online.has(m.memberId);
+            const unread = getUnreadCount(m.memberId);
+            
+            return (
+              <div
+                key={m.memberId}
+                onClick={() => {
+                  setSelected({ kind: 'dm', peerMemberId: m.memberId });
+                  setMessages([]);
+                  setIsLoading(true);
+                  setHasMore(true);
+                  setViewKey((k) => k + 1);
+                }}
+                className={`bg-white rounded-xl p-4 cursor-pointer border border-gray-200 hover:shadow-md transition-shadow ${selected.kind === 'dm' && selected.peerMemberId === m.memberId ? 'ring-2 ring-blue-500' : ''}`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="relative flex-shrink-0">
+                    <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <User className="w-7 h-7 text-blue-600" />
+                    </div>
+                    {isOnline && <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className="font-semibold text-gray-900">{m.name}</h3>
+                      <span className="text-xs text-gray-400">{getLastMessageTime(m.memberId)}</span>
+                    </div>
+                    <p className="text-sm text-gray-600 truncate">{getLastMessage(m.memberId)}</p>
+                  </div>
+                  {unread > 0 && (
+                    <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-xs font-medium text-white">{unread}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             );
           })}
-          <div ref={bottomRef} />
-        </section>
-
-        <footer className="border-t border-emerald-900/40 p-3 flex gap-2 bg-[#0f2b1f]">
-          <div className="relative flex-1">
-            <input
-              value={input}
-              onChange={(e) => handleInputChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (showMentions && (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === 'Escape')) {
-                  handleMentionNav(e);
-                  return;
-                }
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              placeholder="Type a message... (use @ to mention)"
-              className="w-full bg-[#0b2018] border border-emerald-900/40 rounded px-3 py-2 outline-none"
-            />
-            {showMentions && selected.kind === 'group' && filteredMentions.length > 0 && (
-              <div className="absolute bottom-full mb-2 left-0 w-full max-h-48 overflow-auto rounded border border-emerald-900/40 bg-[#0b2018] shadow-lg z-10">
-                {filteredMentions.map((m, idx) => (
-                  <div
-                    key={m.memberId}
-                    className={`px-3 py-2 cursor-pointer flex items-center gap-2 ${idx === mentionIndex ? 'bg-emerald-900/50' : 'hover:bg-emerald-900/30'}`}
-                    onClick={() => pickMention(m)}
-                  >
-                    <span className={`inline-block w-2 h-2 rounded-full ${online.has(m.memberId) ? 'bg-emerald-500' : 'bg-gray-600'}`} />
-                    <span className="text-sm">@{m.name}</span>
-                  </div>
-                ))}
+        </div>
+      </div>
+      
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col p-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 h-full flex flex-col">
+          {/* Header */}
+          <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <User className="w-6 h-6 text-blue-600" />
               </div>
-            )}
+              <div>
+                <h2 className="font-semibold text-gray-900">{selectedTitle}</h2>
+                <p className="text-sm text-gray-500">
+                  {typingPeers.size > 0 ? (
+                    <>
+                      {Array.from(typingPeers)
+                        .map((id) => members.find((m) => m.memberId === id)?.name || id)
+                        .join(', ')}{' '}
+                      is typing...
+                    </>
+                  ) : selected.kind === 'group' ? (
+                    `${members.length} members`
+                  ) : (
+                    online.has((selected as any).peerMemberId) ? 'Active now' : 'Offline'
+                  )}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-1">
+              <button className="p-2 hover:bg-gray-50 rounded-lg"><Phone className="w-5 h-5 text-gray-600" /></button>
+              <button className="p-2 hover:bg-gray-50 rounded-lg"><Video className="w-5 h-5 text-gray-600" /></button>
+            </div>
           </div>
-          <button onClick={handleSend} className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded">
-            Send
-          </button>
-        </footer>
-      </main>
+          
+          {/* Messages */}
+          <div key={viewKey} ref={listRef} onScroll={onScrollList} className="flex-1 overflow-y-auto p-6 space-y-4">
+            {isLoading && messages.length === 0 && (
+              <div className="text-sm text-gray-500 text-center">Loading messages...</div>
+            )}
+            {messages.map((m, idx) => {
+              const mine = m.fromMemberId === selfMemberId;
+              const current = new Date(m.createdAt);
+              const prev = idx > 0 ? new Date(messages[idx - 1].createdAt) : null;
+              const showDate = !prev || prev.toDateString() !== current.toDateString();
+              
+              return (
+                <React.Fragment key={m._id}>
+                  {showDate && (
+                    <div className="flex justify-center my-2">
+                      <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                        {formatDate(current)}
+                      </span>
+                    </div>
+                  )}
+                  <div className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-lg ${mine ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'} rounded-2xl px-5 py-3 shadow-sm`}>
+                      {!mine && (
+                        <div className="text-xs opacity-70 mb-1 font-medium">
+                          {members.find((mm) => mm.memberId === m.fromMemberId)?.name || m.fromMemberId}
+                        </div>
+                      )}
+                      <p className="whitespace-pre-wrap break-words">
+                        {selected.kind === 'group' ? renderContentWithMentions(m.content) : m.content}
+                      </p>
+                      <div className="flex items-center gap-2 justify-end mt-1">
+                        <span className={`text-xs ${mine ? 'text-blue-100' : 'text-gray-500'}`}>{formatTime(current)}</span>
+                        {selected.kind === 'dm' && mine && (
+                          <span className="text-xs">
+                            {m.readBy && m.readBy.includes((selected as any).peerMemberId) ? '✓✓' : '✓'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </React.Fragment>
+              );
+            })}
+            <div ref={bottomRef} />
+          </div>
+          
+          {/* Input */}
+          <div className="p-4 border-t border-gray-200">
+            <div className="relative">
+              <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-2">
+                <button className="p-2 hover:bg-white rounded-lg"><Paperclip className="w-5 h-5 text-gray-600" /></button>
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => handleInputChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (showMentions && (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === 'Escape')) {
+                      handleMentionNav(e);
+                      return;
+                    }
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                  placeholder="Write a message..."
+                  className="flex-1 bg-transparent px-2 py-1 text-sm focus:outline-none"
+                />
+                <button className="p-2 hover:bg-white rounded-lg"><Smile className="w-5 h-5 text-gray-600" /></button>
+                <button onClick={handleSend} className="p-3 bg-blue-500 hover:bg-blue-600 rounded-lg"><Send className="w-5 h-5 text-white" /></button>
+              </div>
+              
+              {/* Mentions Dropdown */}
+              {showMentions && selected.kind === 'group' && filteredMentions.length > 0 && (
+                <div className="absolute bottom-full mb-2 left-0 right-0 max-h-48 overflow-auto rounded-xl border border-gray-200 bg-white shadow-lg z-10">
+                  {filteredMentions.map((m, idx) => (
+                    <div
+                      key={m.memberId}
+                      className={`px-4 py-3 cursor-pointer flex items-center gap-3 ${idx === mentionIndex ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                      onClick={() => pickMention(m)}
+                    >
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">@{m.name}</p>
+                        <p className="text-xs text-gray-500">{online.has(m.memberId) ? 'Online' : 'Offline'}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

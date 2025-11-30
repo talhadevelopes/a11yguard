@@ -8,7 +8,7 @@ import {
 import { FileIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useMemo } from "react";
-import githubLight from "shiki/themes/github-light.mjs";
+const githubLight = "github-light";
 
 interface CodeComparisonProps {
   beforeCode: string;

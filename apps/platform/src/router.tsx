@@ -6,7 +6,7 @@ import SignUp from "./pages/auth/SignUp";
 import Login from "./pages/auth/Login";
 import WebsiteDetails from "./pages/websites/WebsiteDetails";
 import WebsiteMindPage from "./pages/mind/WebsiteMind";
-import WebsitesPage from "./pages/websites/Websites";
+import Websites from "./pages/websites/Websites"; 
 import TeamManagementPage from "./pages/team/TeamManagement";
 import OnboardingPage from "./pages/auth/Onboarding";
 import NotFound from "./pages/NotFound";
@@ -16,62 +16,18 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    errorElement: <NotFound />,
     children: [
-      {
-        index: true,
-        element: <LandingPage />,
-      },
-      {
-        path: "dashboard",
-        element: <Dashboard />,
-      },
-      {
-        path: "signup",
-        element: <SignUp />,
-      },
-      {
-        path: "login",
-        element: <Login />,
-      },
-      {
-        path: "manage",
-        element: <TeamManagementPage />,
-      },
-      {
-        path: "onboard",
-        element: <OnboardingPage />,
-      },
-
-      {
-        path: "chat",
-        element: <ChatPage />,
-      },
-      {
-        path: "websites",
-        children: [
-          {
-            index: true,
-            element: <WebsitesPage />,
-          },
-          {
-            path: ":id",
-            element: <WebsiteDetails />,
-          },
-        ],
-      },
-      {
-        path: "/mind/:websiteId",
-        element: <WebsiteMindPage />,
-      },
-      {
-        path: "*",
-        element: <NotFound />,
-      },
+      { index: true, element: <LandingPage /> },
+      { path: "dashboard", element: <Dashboard /> },
+      { path: "signup", element: <SignUp /> },
+      { path: "login", element: <Login /> },
+      { path: "manage", element: <TeamManagementPage /> },
+      { path: "onboard", element: <OnboardingPage /> },
+      { path: "chat", element: <ChatPage /> },
+      { path: "websites", element: <Websites /> },  // ← CHANGED THIS
+      { path: "websites/:id", element: <WebsiteDetails /> },
+      { path: "mind/:websiteId", element: <WebsiteMindPage /> },
     ],
   },
-  {
-    path: "*",
-    element: <NotFound />,
-  },
+  { path: "*", element: <NotFound /> },
 ]);

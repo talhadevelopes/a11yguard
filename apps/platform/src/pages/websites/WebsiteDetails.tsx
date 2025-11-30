@@ -266,66 +266,11 @@ export default function WebsiteDetailsPage() {
           </div>
         )}
 
-        {/* Interactive Elements Section */}
-        {snapshots &&
-          snapshots.length > 0 &&
-          snapshots[0]?.interactiveElements && (
-            <div className="mb-8">
-              <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-green-100/50 overflow-visible">
-                <div className="px-6 py-5 border-b border-green-100/50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
-                      <ScanLine className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold font-heading text-slate-800">
-                        Interactive Elements
-                      </h2>
-                      <p className="text-sm text-slate-500">
-                        Buttons, links, forms, and input analysis
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-6">
-                  <InteractiveElements snapshot={snapshots[0]} />
-                </div>
-              </div>
-            </div>
-          )}
+       
 
         {/* Enhanced Snapshots section */}
         <div className="mb-8">
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-green-100/50 overflow-visible">
-            <div className="px-6 py-5 border-b border-green-100/50">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
-                    <Layers className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold font-heading text-slate-800">
-                      Website Snapshots
-                    </h2>
-                    <p className="text-sm text-slate-500">
-                      {snapshots?.length || 0} snapshots captured
-                    </p>
-                  </div>
-                </div>
-
-                {snapshots && snapshots.length > 0 && (
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-50 text-green-700 border border-green-200">
-                    <Clock className="w-4 h-4" />
-                    <span className="text-sm font-medium">
-                      Latest:
-                      {new Date(Date.now()).toLocaleDateString()}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
             <div className="p-6">
               <SnapshotDisplay snapshots={snapshots || []} />
             </div>
@@ -335,29 +280,6 @@ export default function WebsiteDetailsPage() {
         {/* Enhanced Accessibility section */}
         <div className="mb-8">
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-green-100/50 overflow-visible">
-            <div className="px-6 py-5 border-b border-green-100/50">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg">
-                    <Gauge className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold font-heading text-slate-800">
-                      Accessibility Analysis
-                    </h2>
-                    <p className="text-sm text-slate-500">
-                      AI-powered accessibility insights and recommendations
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-50 text-purple-700 border border-purple-200">
-                  <Sparkles className="w-4 h-4" />
-                  <span className="text-sm font-medium">AI Enhanced</span>
-                </div>
-              </div>
-            </div>
-
             <div className="p-6">
               <EnhancedAccessibilitySection
                 accessibilityIssues={accessibilityIssues}

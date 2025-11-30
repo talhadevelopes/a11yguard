@@ -73,9 +73,7 @@ export default function SnapshotDisplay({ snapshots }: SnapshotDisplayProps) {
       <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-green-100/50 overflow-hidden">
         <div className="px-6 py-5 border-b border-green-100/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg">
-              <Layers className="w-5 h-5 text-white" />
-            </div>
+            
             <div>
               <h2 className="text-xl font-bold font-heading text-slate-800">
                 Snapshot Comparison
