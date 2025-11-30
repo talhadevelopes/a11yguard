@@ -1,11 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import type { AccessibilityIssue } from "../types/websiteTypes";
+import type { AccessibilityIssue } from "@a11yguard/shared";
 import { accessibilityService } from "../services/api";
 import { useAuthStore } from "../stores/authStore";
 
 export const fetchAccessibilityIssues = async (websiteId: string): Promise<AccessibilityIssue[]> => {
   const data = await accessibilityService.getAccessibilityResults(websiteId);
-  // backend returns { issues, analyzedAt }, we want issues array
   if (data && Array.isArray(data)) return data as any;
   if (data?.issues && Array.isArray(data.issues)) return data.issues as AccessibilityIssue[];
   return [];

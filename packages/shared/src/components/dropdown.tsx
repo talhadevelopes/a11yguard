@@ -68,7 +68,6 @@ const DropdownMenuShortcut = (props: React.HTMLAttributes<HTMLSpanElement>) => (
 )
 const DropdownMenuSubTrigger = DropdownMenuPrimitive.SubTrigger
 
-// ✅ Export all
 export {
   DropdownMenu,
   DropdownMenuTrigger,

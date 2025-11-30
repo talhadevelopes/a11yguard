@@ -5,6 +5,7 @@ import { ChatMessage } from '../models';
 const parseBefore = (before?: string) => (before ? new Date(before) : undefined);
 
 export class MessagesController {
+  //used in /chat to get the group history
   static async getGroupHistory(req: AuthRequest, res: Response) {
     try {
       const userId = req.userId!;
@@ -26,6 +27,7 @@ export class MessagesController {
     }
   }
 
+  //getting DM history
   static async getDmHistory(req: AuthRequest, res: Response) {
     try {
       const userId = req.userId!;

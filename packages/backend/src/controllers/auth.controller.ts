@@ -9,7 +9,7 @@ import type {
   RegisterDTO,
   SelectMemberDTO,
   MemberDTO,
-} from "../types/index.types";
+} from "@a11yguard/shared";
 import {
   loginValidation,
   registerValidation,
@@ -19,7 +19,6 @@ import {
 export class AuthController {
   static async register(req: Request, res: Response) {
     try {
-      // ✅ Use Zod validation
       const validatedData = registerValidation.parse(req.body);
       const { email, password } = validatedData;
 
@@ -49,7 +48,6 @@ export class AuthController {
         201
       );
     } catch (error: any) {
-      // ✅ Handle Zod validation errors
       if (error.name === "ZodError") {
         const errorMessages = error.errors
           .map((err: any) => err.message)
@@ -75,7 +73,7 @@ export class AuthController {
           "INVALID_CREDENTIALS"
         );
 
-      // Not onboarded yet
+      //not onboarded yet
       if (!user.onboarded) {
         const token = generateToken({ userId: user._id.toString() });
         const data: RegisterDTO = {
@@ -86,7 +84,6 @@ export class AuthController {
         return sendSuccess(res, data, "Please complete your onboarding.");
       }
 
-      // Fetch member profiles
       const members = await Member.find({ userId: user._id.toString() })
         .sort({ createdAt: 1 });
 
@@ -98,7 +95,7 @@ export class AuthController {
           "MEMBER_NOT_FOUND"
         );
 
-      // Single member — auto-login
+      //if single member then auto login
       if (members.length === 1) {
         const primaryMember = members[0]!;
         const token = generateToken({
@@ -116,7 +113,7 @@ export class AuthController {
         return sendSuccess(res, data, "Login successful");
       }
 
-      // Multiple members — return list
+      //if multiple members then return list
       const data: LoginMultipleMembersDTO = {
         userId: user._id.toString(),
         onboarded: user.onboarded,
@@ -137,7 +134,6 @@ export class AuthController {
         "Multiple member profiles found. Please select one."
       );
     } catch (error: any) {
-      // ✅ Handle Zod validation errors
       if (error.name === "ZodError") {
         const errorMessages = error.errors
           .map((err: any) => err.message)
@@ -149,6 +145,7 @@ export class AuthController {
     }
   }
 
+  //token is generated based on the member seleted not based on teams login
   static async selectMemberAndGenerateToken(req: Request, res: Response) {
     try {
       const { userId, memberId } = selectMemberValidation.parse(req.body);
@@ -184,7 +181,6 @@ export class AuthController {
       };
       return sendSuccess(res, data, "Member profile selected successfully.");
     } catch (error: any) {
-      // ✅ Handle Zod validation errors
       if (error.name === "ZodError") {
         const errorMessages = error.errors
           .map((err: any) => err.message)

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { API_BASE_URL, setupInterceptors } from "./api";
-import type { LoginResponse, OnboardResponse, RegisterResponse, SelectMemberResponse } from "../types/AuthTypes";
+import type { LoginResponse, OnboardResponse, RegisterResponse, SelectMemberResponse } from "@a11yguard/shared";
 
 export const authApi = {
   login: async (email: string, password: string): Promise<LoginResponse> => {

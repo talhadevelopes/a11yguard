@@ -7,7 +7,7 @@ import type {
   LoginResponse,
   SelectMemberResponse,
   OnboardResponse,
-} from "../types/AuthTypes";
+} from "@a11yguard/shared";
 
 interface AuthState {
   user: User | null;

@@ -1,7 +1,7 @@
 import { Button } from "@a11yguard/shared/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@a11yguard/shared/components/card"
 import { Badge } from "@a11yguard/shared/components/badge"
-import Footer from "../components/Footer"
+import Footer from "../components/layout/Footer"
 import {
   Shield,
   Eye,
@@ -44,8 +44,8 @@ import {
   Award,
   Briefcase,
 } from "lucide-react"
-import Header from "../components/Header"
-import ExtensionCarousel from "../components/ExtensionCarousel"
+import Header from "../components/layout/Header"
+import ExtensionCarousel from "../components/pages/landing/ExtensionCarousel"
 
 export default function LandingPage() {
   return (
@@ -138,20 +138,13 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-6 text-lg font-mono group shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden"
+                  className="bg-gradient-to-r cursor-pointer from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-6 text-lg font-mono group shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 relative overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
                   <Chrome className="mr-3 h-5 w-5 group-hover:scale-110 transition-transform relative z-10" />
                   <span className="relative z-10">chrome.install()</span>
                 </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-green-200 text-green-700 hover:bg-green-50 px-8 py-6 text-lg font-mono group bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                >
-                  <Terminal className="mr-3 h-5 w-5 group-hover:rotate-12 transition-transform" />
-                  ./demo --live
-                </Button>
+               
               </div>
 
               <div className="flex flex-wrap items-center gap-8 text-sm text-gray-500 font-mono">

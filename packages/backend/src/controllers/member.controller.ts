@@ -4,13 +4,14 @@ import { v4 as uuidv4 } from "uuid";
 import { generateToken } from "../utils/jwt";
 import { User, Member, MemberType } from "../models";
 import { sendError, sendSuccess } from "../types/response.types";
-import type { MemberDTO } from "../types/index.types";
+import type { MemberDTO } from "@a11yguard/shared";
 import {
   createMemberValidation,
   updateMemberValidation,
 } from "../validations/memberValidation";
 
 export class MembersController {
+  //create first member
   static createInitialMember = async (req: AuthRequest, res: Response) => {
     try {
       const userId = req.userId;
@@ -74,6 +75,7 @@ export class MembersController {
     }
   };
 
+  //creating member in the "manage" page
   static createMember = async (req: AuthRequest, res: Response) => {
     try {
       if (req.memberType !== "Admin")
@@ -124,7 +126,7 @@ export class MembersController {
       return sendError(res, 500, "Server error", "SERVER_ERROR");
     }
   };
-  // --- Get all members for the authenticated user ---
+  //get all members
   static getMembersByUser = async (req: AuthRequest, res: Response) => {
     try {
       const members = await Member.find(
@@ -156,7 +158,7 @@ export class MembersController {
     }
   };
 
-  // --- Get member by ID ---
+  //get by id
   static getMemberById = async (req: AuthRequest, res: Response) => {
     try {
       const { memberId } = req.params;
@@ -204,7 +206,7 @@ export class MembersController {
     }
   };
 
-  // --- Update member ---
+  //update member
   static updateMember = async (req: AuthRequest, res: Response) => {
     try {
       const { memberId } = req.params;
@@ -227,7 +229,6 @@ export class MembersController {
           "FORBIDDEN"
         );
 
-      // Build type-safe update object
       const updateFields: {
         name?: string;
         role?: string;
@@ -238,26 +239,21 @@ export class MembersController {
       };
 
       if (name) updateFields.name = name;
-    if (role) updateFields.role = role;
-    if (req.memberType === "Admin" && type) updateFields.type = type as MemberType;
+      if (role) updateFields.role = role;
+      if (req.memberType === "Admin" && type)
+        updateFields.type = type as MemberType;
 
-
-      // Update member in database
-      const member = await Member.findOneAndUpdate(
-        { memberId },
-        updateFields,
-        {
-          new: true,
-          select: {
-            memberId: 1,
-            name: 1,
-            role: 1,
-            type: 1,
-            createdAt: 1,
-            updatedAt: 1,
-          },
-        }
-      );
+      const member = await Member.findOneAndUpdate({ memberId }, updateFields, {
+        new: true,
+        select: {
+          memberId: 1,
+          name: 1,
+          role: 1,
+          type: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      });
 
       if (!member) {
         return sendError(res, 404, "Member not found", "NOT_FOUND");
@@ -283,7 +279,7 @@ export class MembersController {
       return sendError(res, 500, "Server error", "SERVER_ERROR");
     }
   };
-  // --- Delete member ---
+  //delete member
   static deleteMember = async (req: AuthRequest, res: Response) => {
     try {
       if (req.memberType !== "Admin")
@@ -297,7 +293,7 @@ export class MembersController {
       const { memberId } = req.params;
       const adminMembers = await Member.find({
         userId: req.userId,
-        type: "Admin"
+        type: "Admin",
       });
 
       if (adminMembers.length === 1 && adminMembers[0]?.memberId === memberId)

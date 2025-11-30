@@ -47,7 +47,6 @@ const MemberSchema = new Schema<IMember>({
   collection: 'members'
 });
 
-// Add indexes and unique constraints
 MemberSchema.index({ userId: 1, memberId: 1 }, { unique: true });
 MemberSchema.index({ type: 1 });
 

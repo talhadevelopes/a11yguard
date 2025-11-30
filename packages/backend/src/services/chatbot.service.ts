@@ -12,9 +12,6 @@ interface ChatMessage {
 }
 
 export class ChatbotService {
-  /**
-   * Generate context-aware response for accessibility questions
-   */
   static async generateResponse(
     query: string,
     context: ChatContext,
@@ -22,7 +19,8 @@ export class ChatbotService {
   ): Promise<string> {
     try {
       // 1. Fetch current accessibility data
-      const accessibilityContext = await this.buildAccessibilityContext(context);
+      const accessibilityContext =
+        await this.buildAccessibilityContext(context);
 
       // 2. Build system prompt with rich context
       const systemPrompt = this.buildSystemPrompt(accessibilityContext);
@@ -40,22 +38,17 @@ export class ChatbotService {
       return response;
     } catch (error: any) {
       console.error("Chatbot service error:", error);
-      throw new Error(
-        error?.message || "Failed to generate chatbot response"
-      );
+      throw new Error(error?.message || "Failed to generate chatbot response");
     }
   }
 
-  /**
-   * Build accessibility context from database
-   */
   private static async buildAccessibilityContext(
     context: ChatContext
   ): Promise<any> {
     try {
       // Get the specific snapshot
       const snapshot = await Snapshot.findById(context.snapshotId);
-      
+
       if (!snapshot) {
         throw new Error("Snapshot not found");
       }
@@ -116,9 +109,6 @@ export class ChatbotService {
     }
   }
 
-  /**
-   * Build system prompt with accessibility context
-   */
   private static buildSystemPrompt(accessibilityContext: any): string {
     const { currentSnapshot, issues } = accessibilityContext;
 
@@ -155,9 +145,6 @@ ${Object.entries(issues.categories)
 Be helpful, actionable, and focus on solving the developer's immediate problem.`;
   }
 
-  /**
-   * Build conversation messages for API
-   */
   private static buildConversationMessages(
     systemPrompt: string,
     userQuery: string,
@@ -188,9 +175,7 @@ Be helpful, actionable, and focus on solving the developer's immediate problem.`
     return messages;
   }
 
-  /**
-   * Call Gemini API with conversation
-   */
+  //call gemini helper function
   private static async callGeminiAPI(messages: any[]): Promise<string> {
     const apiKey = process.env.AI_API_KEY_CHATBOT;
     if (!apiKey) {
@@ -243,10 +228,9 @@ Be helpful, actionable, and focus on solving the developer's immediate problem.`
     return text.trim();
   }
 
-  /**
-   * Calculate severity breakdown
-   */
-  private static calculateSeverityBreakdown(issues: any[]): Record<string, number> {
+  private static calculateSeverityBreakdown(
+    issues: any[]
+  ): Record<string, number> {
     const breakdown: Record<string, number> = {
       Critical: 0,
       High: 0,
@@ -264,9 +248,6 @@ Be helpful, actionable, and focus on solving the developer's immediate problem.`
     return breakdown;
   }
 
-  /**
-   * Categorize issues by type
-   */
   private static categorizeIssues(issues: any[]): Record<string, number> {
     const categories: Record<string, number> = {};
 

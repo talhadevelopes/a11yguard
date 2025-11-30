@@ -1,11 +1,8 @@
 import axios from 'axios';
 import { useAuthStore } from '../stores/authStore';
-
 export const API_BASE_URL = import.meta.env.VITE_PUBLIC_BACKEND_URL || "http://localhost:4000";
 
-// Initialize axios interceptors after store creation
 let isInterceptorSetup = false;
-
 export const setupInterceptors = () => {
   if (isInterceptorSetup) return;
 
@@ -21,10 +18,7 @@ export const setupInterceptors = () => {
     (response) => response,
     (error) => {
       if (error.response?.status === 401) {
-        // clear user/session
         useAuthStore.getState().clearAuth();
-
-        // redirect only on client
         if (
           typeof window !== "undefined" &&
           window.location.pathname !== "/login"
@@ -40,6 +34,7 @@ export const setupInterceptors = () => {
 };
 
 
+// Website Service
 export const websiteService = {
   createWebsite: async (websiteData: any) => {
     setupInterceptors();
@@ -90,7 +85,7 @@ export const snapshotService = {
   },
 };
 
-// Chat Service
+// AI Chatbot Service
 export const chatService = {
   processChat: async (chatData: {
     query: string;
@@ -172,12 +167,6 @@ export const presenceService = {
 
 // Utility Service
 export const utilityService = {
-  // analyzeAccessibility: async (analysisData: any) => {
-  //   setupInterceptors();
-  //   const response = await axios.post(`${API_BASE_URL}/api/analyze-accessibility`, analysisData);
-  //   return response.data.data;
-  // },
-
   // Generate code fixes for accessibility issues
   generateCodeFixes: async (issues: any[]) => {
     setupInterceptors();

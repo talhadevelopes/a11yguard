@@ -1,16 +1,16 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "./App";
 import LandingPage from "./pages/LandingPage";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard/Dashboard";
 import SignUp from "./pages/auth/SignUp";
 import Login from "./pages/auth/Login";
-import WebsiteDetails from "./pages/websites/WebsiteDetailsPage";
-import WebsiteMindPage from "./pages/mind/WebsiteMindPage";
-import WebsitesPage from "./pages/websites/WebsitesPage";
-import TeamManagementPage from "./pages/team_management/TeamManagementPage";
-import OnboardingPage from "./pages/auth/OnboardingPage";
-import NotFound from "./pages/not-found";
-import ChatPage from "./pages/chat/ChatPage";
+import WebsiteDetails from "./pages/websites/WebsiteDetails";
+import WebsiteMindPage from "./pages/mind/WebsiteMind";
+import WebsitesPage from "./pages/websites/Websites";
+import TeamManagementPage from "./pages/team/TeamManagement";
+import OnboardingPage from "./pages/auth/Onboarding";
+import NotFound from "./pages/NotFound";
+import ChatPage from "./pages/chat/Chat";
 
 export const router = createBrowserRouter([
   {

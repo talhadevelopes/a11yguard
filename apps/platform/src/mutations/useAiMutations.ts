@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { accessibilityService, chatService } from "../services/api";
-import type { AccessibilityIssue } from "../types/websiteTypes";
+import type { AccessibilityIssue } from "@a11yguard/shared";
 
 interface ChatMessage {
   role: "user" | "assistant";

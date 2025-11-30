@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { websiteService } from "../services/api";
-import type { Website } from "../types/websiteTypes";
+import type { WebsiteDTO } from "@a11yguard/shared";
 import { useAuthStore } from "../stores/authStore";
 
 export const useWebsitesQuery = () => {
   const { token, logout } = useAuthStore();
 
-  return useQuery<Website[], Error>({
+  return useQuery<WebsiteDTO[], Error>({
     queryKey: ["websites"],
     queryFn: async () => {
       if (!token) {
@@ -21,7 +21,7 @@ export const useWebsitesQuery = () => {
         return {
           ...w,
           id,
-        } as Website;
+        } as WebsiteDTO;
       });
     },
     enabled: !!token,

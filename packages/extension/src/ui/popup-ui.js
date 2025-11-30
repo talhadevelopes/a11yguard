@@ -1,5 +1,3 @@
-// src/ui/popup-ui.js
-
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("Popup DOM loaded, initializing...")
 
@@ -77,9 +75,8 @@ function initializePopup() {
   initializeTabs()
   initializePageInfo()
   initializeSnapshots();
-  initializeChatbot();   // ✅ new
+  initializeChatbot();  
   initializeAccessibility();
-  // Later: initializeSnapshots(), initializeChatbot(), initializeAccessibility()
   console.log("Popup initialization complete")
 }
 

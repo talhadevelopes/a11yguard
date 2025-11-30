@@ -7,10 +7,12 @@ import {
 } from "../services/accessibility.service";
 import dotenv from "dotenv";
 import { sendError, sendSuccess } from "../types/response.types";
-import { redisClient } from "../index";
+import { redisClient } from "../utils/redis";
 dotenv.config();
 
 export class AccessibilityController {
+  // takes HTML code and checks it for accessibility problems RIGHT NOW, but doesn't save anything to the database.
+  // this is for extension
   static async analyzeAccessibility(req: Request, res: Response) {
     try {
       const { html } = req.body;
@@ -30,6 +32,7 @@ export class AccessibilityController {
     }
   }
 
+  //Takes accessibility issues that were ALREADY analyzed from the extension and saves them to the database.
   static async saveAccessibilityResults(req: AuthRequest, res: Response) {
     try {
       console.log("=== Accessibility Save Request ===");
@@ -39,9 +42,7 @@ export class AccessibilityController {
 
       const { issues, analyzedAt } = req.body;
       if (!issues || !analyzedAt || !Array.isArray(issues)) {
-        console.log(
-          "❌ Missing issues or analyzedAt or issues is not an array"
-        );
+        console.log("Missing issues or analyzedAt or issues is not an array");
         return sendError(
           res,
           400,
@@ -50,10 +51,9 @@ export class AccessibilityController {
         );
       }
 
-      // Guard: avoid wiping existing issues when upstream analysis fails and sends []
       if (Array.isArray(issues) && issues.length === 0) {
         console.log(
-          "⚠️ Received empty issues array. Skipping overwrite to preserve previous results."
+          "Received empty issues array. Skipping overwrite to preserve previous results."
         );
         return sendError(
           res,
@@ -74,26 +74,27 @@ export class AccessibilityController {
 
       console.log("🔍 Looking for existing snapshot...");
 
-      // First try to find the most recent snapshot
+      //finding exisiting snapshots first
       const existingSnapshot = await Snapshot.findOne({
         websiteId: req.params.websiteId,
         userId: req.userId,
       }).sort({ capturedAt: -1 });
 
       let snapshot: any;
+      //finding exisiting snapshots first
       if (existingSnapshot) {
         console.log(
-          "✅ Found existing snapshot:",
+          "Found existing snapshot:",
           existingSnapshot._id.toString()
         );
         console.log("Updating with accessibility issues...");
 
-        // Delete existing accessibility issues first
+        //delete existing accessibility issues first
         await AccessibilityIssue.deleteMany({
           snapshotId: existingSnapshot._id.toString(),
         });
 
-        // Create new accessibility issues
+        //create new accessibility issues
         await AccessibilityIssue.insertMany(
           issues.map((issue: any) => ({
             snapshotId: existingSnapshot._id.toString(),
@@ -105,7 +106,7 @@ export class AccessibilityController {
           }))
         );
 
-        // Update the snapshot's analyzedAt
+        //update the snapshot's analyzedAt
         snapshot = await Snapshot.findByIdAndUpdate(
           existingSnapshot._id,
           { analyzedAt: new Date(analyzedAt) },
@@ -118,11 +119,11 @@ export class AccessibilityController {
         });
         snapshot = { ...snapshot!.toObject(), accessibilityIssues };
 
-        console.log("✅ Snapshot updated successfully");
+        console.log("Snapshot updated successfully");
       } else {
-        console.log("⚠️ No existing snapshot found, creating new one...");
+        console.log("No existing snapshot found, creating new one...");
 
-        // Create a new snapshot with accessibility results
+        //create a new snapshot with accessibility results
         snapshot = await Snapshot.create({
           websiteId: req.params.websiteId,
           userId: req.userId,
@@ -146,7 +147,7 @@ export class AccessibilityController {
         snapshot = { ...snapshot.toObject(), accessibilityIssues };
 
         console.log(
-          "✅ New snapshot created with accessibility data:",
+          "New snapshot created with accessibility data:",
           snapshot._id.toString()
         );
       }
@@ -162,7 +163,7 @@ export class AccessibilityController {
         201
       );
     } catch (error: any) {
-      console.error("❌ Accessibility save error:", error);
+      console.error("Accessibility save error:", error);
       console.error("Error name:", error.name);
       console.error("Error message:", error.message);
       console.error("Error stack:", error.stack);
@@ -176,6 +177,7 @@ export class AccessibilityController {
     }
   }
 
+  //get the results in the website details page
   static async getAccessibilityResults(req: AuthRequest, res: Response) {
     try {
       console.log("=== Accessibility Get Request ===");
@@ -191,13 +193,13 @@ export class AccessibilityController {
         );
       }
 
-      // Check cache first (robust: handle closed client, redis errors, and JSON parse errors)
+      // Check cache first
       const cacheKey = `accessibility:${req.userId}:${req.params.websiteId}`;
       if (redisClient?.isOpen) {
         try {
           const cachedData = await redisClient.get(cacheKey);
           if (cachedData) {
-            console.log("✅ Cache HIT for accessibility results");
+            console.log("Cache HIT for accessibility results");
             try {
               const parsed = JSON.parse(cachedData);
               return sendSuccess(
@@ -213,7 +215,7 @@ export class AccessibilityController {
               // fall through to DB fetch
             }
           } else {
-            console.log("❌ Cache MISS for accessibility results");
+            console.log("Cache MISS for accessibility results");
           }
         } catch (redisErr: any) {
           console.warn(
@@ -226,7 +228,7 @@ export class AccessibilityController {
         console.log("Redis client not open, skipping accessibility cache");
       }
 
-      // Find snapshot with accessibility issues
+      //find snapshot with accessibility issues
       const snapshot = await Snapshot.findOne({
         websiteId: req.params.websiteId,
         userId: req.userId,
@@ -245,7 +247,7 @@ export class AccessibilityController {
         !accessibilityIssues ||
         accessibilityIssues.length === 0
       ) {
-        console.log("❌ No accessibility results found");
+        console.log("No accessibility results found");
         return sendError(
           res,
           404,
@@ -255,7 +257,7 @@ export class AccessibilityController {
       }
 
       console.log(
-        "✅ Found accessibility results:",
+        "Found accessibility results:",
         accessibilityIssues.length,
         "issues"
       );
@@ -265,16 +267,18 @@ export class AccessibilityController {
         analyzedAt: snapshot.analyzedAt,
       };
 
-      // Cache the response for 10 minutes
+      //cache the response for 10 minutes
       await redisClient.setEx(cacheKey, 600, JSON.stringify(responseData));
 
       return sendSuccess(res, responseData);
     } catch (error: any) {
-      console.error("❌ Accessibility get error:", error);
+      console.error("Accessibility get error:", error);
       return sendError(res, 500, "Server error", "SERVER_ERROR", error.message);
     }
   }
 }
+
+//these are AI Suggestions for Fixing Issues
 export class AccessibilityAIServiceController {
   static async generateAccessibilityRecommendations(
     req: AuthRequest,
@@ -339,7 +343,7 @@ export class AccessibilityAIServiceController {
         return sendError(res, 400, "Issues array required", "VALIDATION_ERROR");
       }
 
-      console.log(`🔧 Generating code fixes for ${issues.length} issues...`);
+      console.log(`Generating code fixes for ${issues.length} issues...`);
 
       const codeFixes =
         await AccessibilityAIRecommendationService.generateCodeFixes(issues);
@@ -353,7 +357,7 @@ export class AccessibilityAIServiceController {
         );
       }
 
-      console.log(`✅ Generated ${codeFixes.length} code fixes`);
+      console.log(`Generated ${codeFixes.length} code fixes`);
 
       return sendSuccess(res, { codeFixes });
     } catch (error: any) {

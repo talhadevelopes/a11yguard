@@ -1,4 +1,4 @@
-import { AccessibilityIssueDTO } from "../types/index.types";
+import { AccessibilityIssueDTO } from "@a11yguard/shared";
 import puppeteer from "puppeteer";
 import { AxePuppeteer } from "@axe-core/puppeteer";
 
@@ -12,7 +12,7 @@ export class AccessibilityService {
       const results = await this.runAxeOnHtml(html);
 
       const analysisTime = Date.now() - startTime;
-      console.log(`✅ Axe-core analysis completed in ${analysisTime}ms`);
+      console.log(`Axe-core analysis completed in ${analysisTime}ms`);
 
       // Convert axe results to our DTO format
       const issues: AccessibilityIssueDTO[] = [];

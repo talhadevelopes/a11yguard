@@ -1,11 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Snapshot } from "../types/websiteTypes";
+import type { Snapshot } from "@a11yguard/shared";
 import { snapshotService } from "../services/api";
 import { useAuthStore } from "../stores/authStore";
 
 export const fetchSnapshots = async (websiteId: string): Promise<Snapshot[]> => {
   const data = await snapshotService.getSnapshots(websiteId);
-  // Normalize snapshots for UI expectations
   if (!Array.isArray(data)) return [];
   return (data as any[]).map((s) => {
     const id = s.id || s._id || s.snapshotId;

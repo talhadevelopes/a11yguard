@@ -84,7 +84,6 @@ const SnapshotSchema = new Schema<ISnapshot>({
   collection: 'snapshots'
 });
 
-// Add indexes
 SnapshotSchema.index({ websiteId: 1 });
 SnapshotSchema.index({ userId: 1 });
 SnapshotSchema.index({ capturedAt: 1 });

@@ -5,66 +5,33 @@ import mongoose from "mongoose";
 import routes from "./routes/index.routes";
 import { connectDatabase } from "./utils/database";
 import { sendError, sendSuccess } from "./types/response.types";
-import { createClient, RedisClientType } from "redis";
+import { redisClient, connectRedis } from "./utils/redis"; // Import from redis.ts
 import hpp from "hpp";
-import helmet from 'helmet';
-import mongoSanitize from 'express-mongo-sanitize'
+import helmet from "helmet";
+import mongoSanitize from "express-mongo-sanitize";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { initChatSockets } from "./sockets/chat";
 import { bindPresenceRedis } from "./controllers/presence.controller";
+
 dotenv.config();
 
-const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
-let socketOptions: any = undefined;
-try {
-  const parsed = new URL(redisUrl);
-  if (parsed.protocol === "rediss:") {
-    // when using TLS, set servername (SNI) to the hostname from the URL
-    // and allow self-signed certs in dev by rejecting unauthorized = false
-    socketOptions = {
-      tls: true,
-      rejectUnauthorized: false,
-      servername: parsed.hostname,
-    };
-  }
-} catch (err) {
-  console.warn("Invalid REDIS_URL format:", process.env.REDIS_URL, err);
-}
-
-export const redisClient: RedisClientType = createClient({
-  url: redisUrl,
-  socket: socketOptions,
-});
-redisClient.on("error", (err) => console.error("Redis Client Error:", err));
-
-export const connectRedis = async () => {
-  if (!redisClient.isOpen) {
-    await redisClient.connect();
-    console.log("✅ Connected to Redis Cloud");
-  }
-};
-
-// Start server function
 export const startServer = async () => {
   try {
-    // Connect to database first
     await connectDatabase();
 
-   await connectRedis();
-    console.log("✅ Connected to Redis");
+    await connectRedis();
+    console.log("Connected to Redis");
 
     const app = express();
     const PORT = 4000;
 
-    // Middleware
     app.use(express.json({ limit: "50mb" }));
     app.use(helmet());
     app.use(hpp());
     app.use(mongoSanitize());
     app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-    // CORS configuration
     const allowedOrigins = [
       process.env.CLIENT_URL || "http://localhost:5173",
       /^chrome-extension:\/\/[a-z]+$/,
@@ -72,19 +39,17 @@ export const startServer = async () => {
     app.use(
       cors({
         origin: allowedOrigins,
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Added more methods
-        credentials: true, // Allow cookies/auth headers
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+        credentials: true,
       })
     );
 
-    // Health check endpoint
     app.get("/api/health", async (req, res) => {
       try {
-        // Check if mongoose is connected
         if (mongoose.connection.readyState !== 1) {
           throw new Error("Database not connected");
         }
-        await redisClient.ping(); // This will throw if Redis is down
+        await redisClient.ping();
 
         return sendSuccess(
           res,
@@ -103,27 +68,22 @@ export const startServer = async () => {
       }
     });
 
-    // Routes
     app.use("/api/auth", routes.auth);
     app.use("/api/websites", routes.websites);
     app.use("/api/websites", routes.snapshots);
     app.use("/api/websites", routes.accessibility);
-    app.use("/api/accessibility", routes.accessibility); // Add standalone accessibility routes
-    // app.use("/api/chat", routes.chat);
+    app.use("/api/accessibility", routes.accessibility);
     app.use("/api/members", routes.members);
-    app.use("/api/chat", routes.chatbot); // ADD THIS LINE
-    app.use("/api", routes.utility);
+    app.use("/api/chat", routes.chatbot);
     app.use("/api/messages", routes.messages);
     app.use("/api/presence", routes.presence);
 
-    // 404 handler
     app.use("*", (req, res) => {
       return sendError(res, 404, "Route not found", "NOT_FOUND", {
         path: req.originalUrl,
       });
     });
 
-    // Global error handler
     app.use(
       (
         error: any,
@@ -143,7 +103,6 @@ export const startServer = async () => {
       }
     );
 
-    // Start the server with Socket.IO
     const httpServer = createServer(app);
     const io = new Server(httpServer, {
       cors: {
@@ -156,23 +115,29 @@ export const startServer = async () => {
     bindPresenceRedis(redisClient);
 
     const server = httpServer.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
-      console.log(`🏥 Health check: http://localhost:${PORT}/api/health`);
+      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`Health check: http://localhost:${PORT}/api/health`);
     });
 
-    //shutdown function
     const gracefulShutdown = async (signal: string) => {
       console.log(`\n🛑 ${signal} received. Shutting down gracefully...`);
 
       server.close(async () => {
-        console.log("✅ Server closed");
+        console.log("Server closed");
 
         try {
           await mongoose.disconnect();
-          console.log("✅ Database disconnected");
+          console.log("Database disconnected");
+
+          // Disconnect Redis
+          if (redisClient.isOpen) {
+            await redisClient.disconnect();
+            console.log("Redis disconnected");
+          }
+
           process.exit(0);
         } catch (error) {
-          console.error("❌ Error during shutdown:", error);
+          console.error("Error during shutdown:", error);
           process.exit(1);
         }
       });
@@ -184,18 +149,14 @@ export const startServer = async () => {
       }, 10000);
     };
 
-    // Use the same function for both signals
     process.on("SIGINT", () => gracefulShutdown("SIGINT"));
     process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
-
-    // Don't return the app, just return void
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);
   }
 };
 
-// Start the server if this file is run directly
 if (require.main === module) {
   startServer();
 }

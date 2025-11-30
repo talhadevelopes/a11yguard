@@ -1,9 +1,9 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useAuthStore } from "./stores/authStore";
-import { ThemeProvider } from "./components/ThemeProvider";
+import { ThemeProvider } from "./components/providers/ThemeProvider";
 import './App.css'
-import Header from "./components/Header";
+import Header from "./components/layout/Header";
 
 export default function App() {
   const { user, isAuthenticated } = useAuthStore();

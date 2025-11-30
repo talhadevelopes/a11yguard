@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Member } from "../types/CustomTypes";
+import type { Member } from "@a11yguard/shared";
 
 
 interface MemberState {

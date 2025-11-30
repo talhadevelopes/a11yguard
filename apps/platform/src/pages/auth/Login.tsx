@@ -3,7 +3,7 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Terminal, Shield, Code2, Eye, EyeOff, ArrowRight, GitBranch, Zap, User, Crown } from "lucide-react"
 import { useAuthStore } from "../../stores/authStore"
-import type { MemberProfile } from "../../types/AuthTypes"
+import type { MemberProfile } from "@a11yguard/shared"
 import { useLoginMutation, useSelectMemberMutation } from "../../mutations/useAuthMutations"
 
 const Login: React.FC = () => {
@@ -237,7 +237,7 @@ const Login: React.FC = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value.trim())}
                       className="w-full px-4 py-3 rounded-xl border border-green-200/50 bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-400 transition-all duration-200 placeholder:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
-                      placeholder="you@company.com"
+                      placeholder="testuser@gmail.com"
                       required
                       disabled={isLoading}
                       autoComplete="email"
@@ -248,7 +248,7 @@ const Login: React.FC = () => {
 
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold text-slate-700" htmlFor="password">
-                    Password
+                    Password (for Demo:testuser123)
                   </label>
                   <div className="relative">
                     <input

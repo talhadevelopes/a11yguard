@@ -4,7 +4,7 @@ export type ChatType = 'group' | 'dm';
 
 export interface IChatMessage extends Document {
   _id: string;
-  userId: string; // organization/team scope
+  userId: string; 
   type: ChatType;
   fromMemberId: string;
   toMemberId?: string; // only for dm

@@ -26,8 +26,6 @@ export interface AuthRequest extends Request {
   memberType?: MemberType;
 }
 
-
-// --- Authenticate Middleware ---
 export const authenticate = (
   req: AuthRequest,
   res: Response,
@@ -45,7 +43,7 @@ export const authenticate = (
     req.userId = decoded.userId;
     req.memberId = decoded.memberId;
     req.memberType = decoded.memberType;
-    console.log("✅ Authenticated userId:", req.userId); 
+    console.log("Authenticated userId:", req.userId); 
     next();
   } catch (err) {
     console.error("Authentication error:", err);
@@ -53,7 +51,6 @@ export const authenticate = (
   }
 };
 
-// --- Require Member Context ---
 export const requireMember = (
   req: AuthRequest,
   res: Response,
@@ -67,7 +64,6 @@ export const requireMember = (
   next();
 };
 
-// --- Authorize Roles Middleware ---
 export const authorizeRoles =
   (...allowedTypes: MemberType[]) =>
   (req: AuthRequest, res: Response, next: NextFunction) => {

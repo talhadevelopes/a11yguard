@@ -31,7 +31,6 @@ const UserSchema = new Schema<IUser>({
   collection: 'users'
 });
 
-// Add indexes
 UserSchema.index({ createdAt: 1 });
 
 export const User = mongoose.model<IUser>('User', UserSchema);

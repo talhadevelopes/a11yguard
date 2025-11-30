@@ -35,7 +35,6 @@ const WebsiteSchema = new Schema<IWebsite>({
   collection: 'websites'
 });
 
-// Add indexes and unique constraints
 WebsiteSchema.index({ url: 1, userId: 1 }, { unique: true });
 WebsiteSchema.index({ isActive: 1 });
 

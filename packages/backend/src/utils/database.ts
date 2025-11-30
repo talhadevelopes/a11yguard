@@ -14,7 +14,7 @@ export const connectDatabase = async (retries = 10) => {
         console.error("Failed to connect after retries");
         process.exit(1);
       }
-      // Wait 2 seconds before retrying
+      //wait 2 seconds before retrying
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }

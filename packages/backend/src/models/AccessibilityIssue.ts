@@ -38,7 +38,6 @@ const AccessibilityIssueSchema = new Schema<IAccessibilityIssue>({
   collection: 'accessibility_issues'
 });
 
-// Add indexes
 AccessibilityIssueSchema.index({ snapshotId: 1 });
 AccessibilityIssueSchema.index({ type: 1 });
 

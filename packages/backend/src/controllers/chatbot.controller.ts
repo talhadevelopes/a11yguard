@@ -8,10 +8,9 @@ interface ChatMessage {
   content: string;
 }
 
+//context aware chatbot
 export class ChatbotController {
-  /**
-   * Handle chat query with accessibility context
-   */
+  //actual AI Chatbot (convo handler)
   static async chat(req: AuthRequest, res: Response) {
     try {
       const { query, snapshotId, conversationHistory } = req.body;
@@ -22,7 +21,12 @@ export class ChatbotController {
       }
 
       if (!snapshotId || typeof snapshotId !== "string") {
-        return sendError(res, 400, "Snapshot ID is required", "VALIDATION_ERROR");
+        return sendError(
+          res,
+          400,
+          "Snapshot ID is required",
+          "VALIDATION_ERROR"
+        );
       }
 
       if (!req.userId) {
@@ -40,13 +44,13 @@ export class ChatbotController {
         );
       }
 
-      console.log(`💬 Chat query: "${query.substring(0, 50)}..."`);
-      console.log(`📸 Snapshot ID: ${snapshotId}`);
-      console.log(`📜 History length: ${history.length}`);
+      console.log(`Chat query: "${query.substring(0, 50)}..."`);
+      console.log(`Snapshot ID: ${snapshotId}`);
+      console.log(`History length: ${history.length}`);
 
       // Get website ID from snapshot (you'll need to fetch this)
       const websiteId = req.params.websiteId || req.body.websiteId;
-      
+
       if (!websiteId) {
         return sendError(
           res,
@@ -67,7 +71,7 @@ export class ChatbotController {
         history
       );
 
-      console.log(`✅ Generated response (${response.length} chars)`);
+      console.log(`Generated response (${response.length} chars)`);
 
       return sendSuccess(res, {
         response,
@@ -97,9 +101,7 @@ export class ChatbotController {
     }
   }
 
-  /**
-   * Get suggested questions based on current issues
-   */
+  //this is for pre-written questions
   static async getSuggestedQuestions(req: AuthRequest, res: Response) {
     try {
       const { snapshotId } = req.params;

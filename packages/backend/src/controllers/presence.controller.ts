@@ -9,6 +9,7 @@ export const bindPresenceRedis = (client: RedisClientType) => {
 };
 
 export class PresenceController {
+  //to get the online/offline status
   static async getOnline(req: AuthRequest, res: Response) {
     try {
       if (!redis) return res.status(500).json({ success: false, message: 'Presence not initialized' });

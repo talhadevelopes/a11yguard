@@ -1,6 +1,5 @@
 import type { Response } from "express";
 
-// Local API response envelope types (duplicated from shared to avoid module resolution issues)
 export interface ApiSuccessResponse<T> {
   success: true;
   message?: string;

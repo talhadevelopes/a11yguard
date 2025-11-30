@@ -84,7 +84,7 @@ class ApiManager {
   async analyzeAccessibility(htmlContent) {
     const settings = await this.getSettings();
     const response = await fetch(
-      `${settings.apiUrl}/api/analyze-accessibility`,
+      `${settings.apiUrl}/api/accessibility/analyze-accessibility`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

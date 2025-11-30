@@ -2,10 +2,12 @@ import { Response } from "express";
 import { AuthRequest } from "../middleware/auth";
 import { Website, Snapshot } from "../models";
 import { sendError, sendSuccess } from "../types/response.types";
-import type { WebsiteDTO } from "../types/index.types";
-import { redisClient } from "../index";
+import type { WebsiteDTO } from "@a11yguard/shared";
+import { redisClient } from "../utils/redis";
 
+//this is the parent container for all snapshots and accessibility
 export class WebsiteController {
+  //used in extension when capturing snapshot
   static async createWebsite(req: AuthRequest, res: Response) {
     try {
       console.log("=== Website Creation Request ===");
@@ -15,17 +17,17 @@ export class WebsiteController {
       const { url, name, title } = req.body;
 
       if (!url) {
-        console.log("❌ No URL provided");
+        console.log("No URL provided");
         return sendError(res, 400, "URL is required", "VALIDATION_ERROR");
       }
 
-      // Clean and validate URL (enforce DB limits: url 255, name 100)
+      //clean and validate URL (enforce DB limits: url 255, name 100)
       const cleanUrl = url.trim().slice(0, 255);
       console.log("Clean URL:", cleanUrl);
 
-      // Check if user is authenticated
+      //check if user is authenticated
       if (!req.userId) {
-        console.log("❌ No user ID in request");
+        console.log("No user ID in request");
         return sendError(res, 401, "User not authenticated", "UNAUTHORIZED");
       }
 
@@ -36,18 +38,24 @@ export class WebsiteController {
       });
 
       if (existingWebsite) {
-        console.log("✅ Website already exists:", existingWebsite.id);
-        // FIXED: Return the websiteId when website already exists
+        console.log("Website already exists:", existingWebsite.id);
+        //return the websiteId when website already exists
         const data: WebsiteDTO = {
           id: existingWebsite._id.toString(),
           url: existingWebsite.url,
           name: existingWebsite.name,
           createdAt: existingWebsite.createdAt.toISOString(),
         };
-        return sendSuccess(res, data, "Website already tracked", undefined, 409);
+        return sendSuccess(
+          res,
+          data,
+          "Website already tracked",
+          undefined,
+          409
+        );
       }
 
-      console.log("🆕 Creating new website...");
+      console.log("Creating new website...");
       const websiteData = {
         url: cleanUrl,
         name: (name || title || cleanUrl).slice(0, 100),
@@ -60,19 +68,21 @@ export class WebsiteController {
 
       const website = await Website.create(websiteData);
 
-      // Invalidate cached websites list for this user so the new website shows up immediately
+      //invalidate cached websites list for this user so the new website shows up immediately
       try {
         const cacheKey = `websites:${req.userId}`;
         if (redisClient?.isOpen) {
           await redisClient.del(cacheKey);
-          console.log("✅ Invalidated websites cache for user", req.userId);
+          console.log("Invalidated websites cache for user", req.userId);
         }
       } catch (redisErr: any) {
-        console.warn("Failed to invalidate websites cache:", redisErr?.message || redisErr);
-        // Not fatal — continue returning success
+        console.warn(
+          "Failed to invalidate websites cache:",
+          redisErr?.message || redisErr
+        );
       }
 
-      console.log("✅ Website created successfully:", website.id);
+      console.log("Website created successfully:", website.id);
       const data: WebsiteDTO = {
         id: website._id.toString(),
         url: website.url,
@@ -81,11 +91,10 @@ export class WebsiteController {
       };
       return sendSuccess(res, data, "Website created", undefined, 201);
     } catch (error: any) {
-      console.error("❌ Website creation error:", error);
+      console.error("Website creation error:", error);
       console.error("Error name:", error.name);
       console.error("Error message:", error.message);
 
-      // Handle specific MongoDB errors
       if (error.name === "ValidationError") {
         console.error("Validation errors:", error.message);
         return sendError(
@@ -102,37 +111,50 @@ export class WebsiteController {
         return sendError(res, 409, "Website already exists", "DUPLICATE");
       }
 
-      return sendError(res, 500, "Server error creating website", "SERVER_ERROR", error.message);
+      return sendError(
+        res,
+        500,
+        "Server error creating website",
+        "SERVER_ERROR",
+        error.message
+      );
     }
   }
 
+  //get all the websites in /websites page
   static async getWebsites(req: AuthRequest, res: Response) {
     try {
-      // Try to use Redis cache but be resilient to Redis failures
+      //try to use Redis cache
       const cacheKey = `websites:${req.userId}`;
       if (redisClient?.isOpen) {
         try {
           const cachedData = await redisClient.get(cacheKey);
           if (cachedData) {
-            console.log("✅ Cache HIT for websites");
+            console.log("Cache HIT for websites");
             try {
               const parsed = JSON.parse(cachedData);
               return sendSuccess(res, parsed, "Websites retrieved from cache");
             } catch (parseErr) {
-              console.warn("Failed to parse cached websites JSON, ignoring cache:", parseErr);
+              console.warn(
+                "Failed to parse cached websites JSON, ignoring cache:",
+                parseErr
+              );
               // fall through to DB fetch
             }
           } else {
-            console.log("❌ Cache MISS for websites");
+            console.log("Cache MISS for websites");
           }
         } catch (redisErr: any) {
-          console.warn("Redis get failed, continuing without cache:",  redisErr?.message || redisErr);
+          console.warn(
+            "Redis get failed, continuing without cache:",
+            redisErr?.message || redisErr
+          );
           // fall through to DB fetch
         }
       } else {
         console.log("Redis client not open, skipping cache");
       }
-      
+
       const websites = await Website.find({
         userId: req.userId,
         isActive: true,
@@ -156,18 +178,27 @@ export class WebsiteController {
         url: website.url,
         name: website.name,
         createdAt: website.createdAt.toISOString(),
-        latestSnapshot: website.latestSnapshot ? website.latestSnapshot.toISOString() : null,
+        latestSnapshot: website.latestSnapshot
+          ? website.latestSnapshot.toISOString()
+          : null,
       }));
 
-      // Cache the response for 10 minutes (600 seconds)
+      //cache the response for 10 minutes (600 seconds)
       try {
         if (redisClient?.isOpen) {
-          await redisClient.setEx(`websites:${req.userId}`, 600, JSON.stringify(data));
+          await redisClient.setEx(
+            `websites:${req.userId}`,
+            600,
+            JSON.stringify(data)
+          );
         }
       } catch (redisErr: any) {
-        console.warn("Failed to set websites cache, ignoring:", redisErr?.message || redisErr);
+        console.warn(
+          "Failed to set websites cache, ignoring:",
+          redisErr?.message || redisErr
+        );
       }
-      
+
       return sendSuccess(res, data, "Websites retrieved successfully");
     } catch (error: any) {
       return sendError(res, 500, "Failed to fetch websites", "SERVER_ERROR");
